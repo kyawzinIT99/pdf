@@ -97,8 +97,8 @@ const schema = [
   `CREATE TABLE IF NOT EXISTS site_home_settings (
     id BIGINT UNSIGNED PRIMARY KEY, announcement VARCHAR(255) NOT NULL, eyebrow VARCHAR(160) NOT NULL,
     title VARCHAR(255) NOT NULL, intro TEXT NOT NULL,
-    hero_image_url VARCHAR(1000) NOT NULL DEFAULT '/community-hero-group.jpg',
-    hero_image_alt VARCHAR(500) NOT NULL DEFAULT 'Community members gathering together',
+    hero_image_url VARCHAR(1000) NOT NULL DEFAULT '/pdf-hero-civilian.png',
+    hero_image_alt VARCHAR(500) NOT NULL DEFAULT 'Civilians packing relief supplies together in a community hall.',
     help_title VARCHAR(255) NOT NULL, help_intro TEXT NOT NULL, pathways_json LONGTEXT NOT NULL,
     updated_by BIGINT UNSIGNED NOT NULL, updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,

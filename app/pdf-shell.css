@@ -120,20 +120,32 @@
   font-weight: 600;
 }
 .pdf-rail {
-  display: grid;
-  grid-template-columns: repeat(9, 1fr);
-  border-top: 1px solid var(--pdf-ink);
+  display: flex;
+  flex-wrap: wrap;
+  border-top: 2px solid var(--pdf-ink);
+  background: #fff;
 }
 .pdf-rail a {
-  padding: 10px 8px;
+  flex: 1 1 auto;
+  padding: 14px 16px;
   text-align: center;
-  font-size: 12px;
-  font-weight: 500;
-  border-left: 1px solid var(--pdf-ink);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--pdf-ink);
+  border-right: 1px solid var(--pdf-ink);
+  border-bottom: 1px solid var(--pdf-ink);
+  white-space: nowrap;
 }
-.pdf-rail a:first-child { border-left: 0; }
-.pdf-rail a.is-on,
-.pdf-rail a:hover { background: var(--pdf-yellow); }
+.pdf-rail a:hover {
+  background: var(--pdf-yellow);
+  color: var(--pdf-ink);
+}
+.pdf-rail a.is-on {
+  background: var(--pdf-yellow);
+  color: var(--pdf-ink);
+  box-shadow: inset 0 -4px 0 var(--pdf-red);
+}
 .pdf-burger { display: none; }
 .pdf-drawer-dim {
   position: fixed;
@@ -156,8 +168,28 @@
   gap: 4px;
   border-left: 1px solid var(--pdf-ink);
 }
-.pdf-drawer a { padding: 12px 0; border-bottom: 1px solid #ddd; }
-.pdf-drawer a.is-on { color: var(--pdf-red); }
+.pdf-drawer-kicker {
+  margin: 8px 0 12px;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--pdf-red);
+}
+.pdf-drawer a {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--pdf-ink);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--pdf-ink);
+}
+.pdf-drawer a.is-on {
+  color: var(--pdf-ink);
+  background: var(--pdf-yellow);
+  margin: 0 -20px;
+  padding: 14px 20px;
+  box-shadow: inset 4px 0 0 var(--pdf-red);
+}
 
 .pdf-stage {
   display: grid;
@@ -452,6 +484,49 @@
 .pdf-inner .section-statement p {
   font-family: "IBM Plex Serif", Georgia, serif;
   letter-spacing: -0.03em;
+  color: var(--pdf-ink) !important;
+}
+.pdf-inner .v2-gallery-hero .v2-section-eyebrow,
+.pdf-inner .v2-events-hero .v2-section-eyebrow {
+  color: var(--pdf-red) !important;
+}
+.pdf-inner .v2-gallery-subtitle,
+.pdf-inner .v2-events-hero p {
+  color: var(--pdf-mute) !important;
+}
+.pdf-inner .v2-gallery-filters {
+  background: #fff;
+  border-bottom: 1px solid var(--pdf-ink);
+}
+.pdf-inner .v2-gallery-filter-btn {
+  background: #fff;
+  border: 1px solid var(--pdf-ink);
+  color: var(--pdf-ink);
+  border-radius: 0;
+}
+.pdf-inner .v2-gallery-filter-btn.active {
+  background: var(--pdf-ink);
+  color: #fff;
+}
+.pdf-inner .v2-gallery-count,
+.pdf-inner .v2-gallery-empty,
+.pdf-inner .v2-gallery-caption h3,
+.pdf-inner .v2-gallery-caption time,
+.pdf-inner .v2-gallery-cat {
+  color: var(--pdf-ink) !important;
+}
+.pdf-inner .v2-gallery-cat {
+  background: var(--pdf-yellow);
+}
+.pdf-inner .v2-gallery-cta {
+  background: var(--pdf-yellow) !important;
+  color: var(--pdf-ink) !important;
+  border-top: 1px solid var(--pdf-ink);
+}
+.pdf-inner .v2-gallery-cta h2,
+.pdf-inner .v2-gallery-cta p {
+  color: var(--pdf-ink) !important;
+  font-family: "IBM Plex Serif", Georgia, serif;
 }
 .pdf-inner .section-statement {
   margin: 0 var(--pdf-pad);

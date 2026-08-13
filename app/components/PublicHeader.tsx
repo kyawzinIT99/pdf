@@ -150,9 +150,8 @@ export function PublicHeader({
             onClick={() => setMobileOpen(false)}
           />
           <nav className="pdf-drawer" id={mobileMenuId} aria-label="All pages">
-            {links
-              .filter((item) => item.href !== "/")
-              .map((item) => (
+            <p className="pdf-drawer-kicker">Pages</p>
+            {links.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}

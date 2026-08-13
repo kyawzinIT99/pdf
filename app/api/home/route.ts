@@ -10,8 +10,8 @@ import { mutationRejected, noStoreHeaders, recordAudit } from "../../lib/securit
 async function ensureSchema(db: D1Database) {
   await db.prepare(homeSettingsSchemaSql).run();
   for (const statement of [
-    "ALTER TABLE site_home_settings ADD COLUMN hero_image_url TEXT NOT NULL DEFAULT '/community-hero-group.jpg'",
-    "ALTER TABLE site_home_settings ADD COLUMN hero_image_alt TEXT NOT NULL DEFAULT 'Community members gathering together'",
+    "ALTER TABLE site_home_settings ADD COLUMN hero_image_url TEXT NOT NULL DEFAULT '/pdf-hero-civilian.png'",
+    "ALTER TABLE site_home_settings ADD COLUMN hero_image_alt TEXT NOT NULL DEFAULT 'Civilians packing relief supplies together in a community hall.'",
   ]) {
     try {
       await db.prepare(statement).run();

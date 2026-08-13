@@ -30,9 +30,9 @@ const defaultFeatureImages: Record<"our-work", PageMedia["featureImages"]> = {
 
 export const defaultPageMedia: Record<"about" | "our-work", PageMedia> = {
   about: {
-    heroImageUrl: "/about-community-australia.webp",
+    heroImageUrl: "/pdf-about-profile.png",
     heroImageAlt:
-      "A diverse group preparing welcome and learning materials together.",
+      "Community organisers reviewing relief lists and village needs together.",
     featureImages: [
       { url: "", alt: "" },
       { url: "", alt: "" },

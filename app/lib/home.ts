@@ -23,8 +23,8 @@ export const defaultHomePage: HomePageSettings = {
   title: "Stand with people. Rebuild with care.",
   intro:
     "PDF is a community relief platform for civilians in and from Myanmar. We publish verified stories, transparent giving, events and practical pathways — edited from the Admin Panel.",
-  heroImageUrl: "/community-hero-group.jpg",
-  heroImageAlt: "Community members gathering in solidarity and care.",
+  heroImageUrl: "/pdf-hero-civilian.png",
+  heroImageAlt: "Civilians packing relief supplies together in a community hall.",
   helpTitle: "How can you take part?",
   helpIntro: "Choose a path. Every public page is updated by authorised administrators.",
   pathways: [

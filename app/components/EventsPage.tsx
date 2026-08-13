@@ -98,7 +98,7 @@ export function EventsPage() {
   const allCategories = Object.entries(categoryLabels);
 
   return (
-    <main className="public-site civic-public-site v2-redesign pdf-theme">
+    <main className="pdf-shell pdf-inner">
       <PublicHeader
         activeHref="/events"
         language={language}
@@ -264,7 +264,7 @@ export function EventsPage() {
               out to get started.
             </p>
           </div>
-          <Link href="/get-involved" className="v2-btn v2-btn-gold">
+          <Link href="/get-involved" className="pdf-cta">
             Contact Us
           </Link>
         </div>

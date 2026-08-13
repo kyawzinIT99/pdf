@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useId, useState } from "react";
 
 export function MailSubscribe({
   source = "website",
@@ -9,39 +9,47 @@ export function MailSubscribe({
   source?: string;
   compact?: boolean;
 }) {
+  const titleId = useId();
   const [notice, setNotice] = useState("");
+  const [error, setError] = useState(false);
   const [busy, setBusy] = useState(false);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setBusy(true);
     setNotice("");
+    setError(false);
     const formEl = event.currentTarget;
     const form = new FormData(formEl);
     try {
       const response = await fetch("/api/subscribers", {
         method: "POST",
+        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: form.get("name"),
           email: form.get("email"),
           consent: form.get("consent") === "on",
           source,
+          page: typeof window !== "undefined" ? window.location.pathname : source,
           website: form.get("website"),
         }),
       });
-      const payload = await response.json();
+      const payload = await response.json().catch(() => ({}));
       if (!response.ok) {
-        throw new Error(payload.error || "Unable to subscribe right now.");
+        throw new Error(
+          payload.error || "Unable to subscribe right now. Check your connection and try again.",
+        );
       }
       setNotice(
         payload.message ||
-          "Thanks — you will receive community event updates by email.",
+          "Thanks — PDF will email you approved event notices. Staff are alerted through n8n.",
       );
       formEl.reset();
-    } catch (error) {
+    } catch (err) {
+      setError(true);
       setNotice(
-        error instanceof Error ? error.message : "Unable to subscribe right now.",
+        err instanceof Error ? err.message : "Unable to subscribe right now.",
       );
     } finally {
       setBusy(false);
@@ -50,15 +58,16 @@ export function MailSubscribe({
 
   return (
     <section
-      className={compact ? "mail-subscribe is-compact" : "mail-subscribe"}
-      aria-labelledby="mail-subscribe-title"
+      className={compact ? "mail-subscribe pdf-subscribe is-compact" : "mail-subscribe pdf-subscribe"}
+      aria-labelledby={titleId}
     >
       <div className="mail-subscribe-copy">
-        <p className="mail-subscribe-eyebrow">Stay updated</p>
-        <h2 id="mail-subscribe-title">Get upcoming event emails</h2>
+        <p className="mail-subscribe-eyebrow">PDF mailing list</p>
+        <h2 id={titleId}>Event notices from this website</h2>
         <p>
-          Subscribe for approved community notices. Your email stays private —
-          staff are alerted, and n8n can send mail when a new event is published.
+          Subscribe to <strong>PDF Myanmar Relief</strong> only. You get approved
+          upcoming-event emails. Your address stays in the Admin Panel; n8n
+          alerts staff and can send the mail. This is not a BCC WA list.
         </p>
       </div>
       <form className="mail-subscribe-form" onSubmit={onSubmit}>
@@ -88,17 +97,19 @@ export function MailSubscribe({
           <input name="website" type="text" tabIndex={-1} autoComplete="off" />
         </label>
         <label className="mail-subscribe-consent">
-          <input name="consent" type="checkbox" required />
+          <input name="consent" type="checkbox" value="on" required />
           <span>
-            I agree to receive community event updates by email. I understand I
-            can ask staff to unsubscribe at any time.
+            I want PDF event emails and I understand I can ask staff to remove me.
           </span>
         </label>
         <button type="submit" disabled={busy}>
-          {busy ? "Subscribing…" : "Subscribe"}
+          {busy ? "Subscribing…" : "Subscribe to PDF events"}
         </button>
         {notice ? (
-          <p className="mail-subscribe-notice" role="status">
+          <p
+            className={`mail-subscribe-notice${error ? " is-error" : " is-ok"}`}
+            role="status"
+          >
             {notice}
           </p>
         ) : null}

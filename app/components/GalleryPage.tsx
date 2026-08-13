@@ -116,7 +116,7 @@ export function GalleryPage() {
     lightbox !== null ? activeAlbum[lightbox.photoIndex] : null;
 
   return (
-    <main className="public-site civic-public-site v2-redesign pdf-theme">
+    <main className="pdf-shell pdf-inner">
       <PublicHeader
         activeHref="/gallery"
         language={language}

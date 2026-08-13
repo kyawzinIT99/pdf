@@ -81,6 +81,9 @@ export async function notifySubscribeAutomation(payload: Record<string, unknown>
     return "disabled";
   }
   return postWebhook(webhook, {
+    organisation: "PDF Myanmar Relief",
+    organisationShort: "PDF",
+    tagline: "Civilian humanitarian community",
     ...payload,
     telegramChatId: config.CRM_TELEGRAM_CHAT_ID?.trim() || "",
     alertEmail: config.CRM_ALERT_EMAIL?.trim() || "",

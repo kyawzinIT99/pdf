@@ -18,6 +18,22 @@ export function sameOrigin(request: Request) {
 
   if (suppliedOrigin === new URL(request.url).origin) return true;
 
+  if (process.env.NODE_ENV !== "production") {
+    try {
+      const host = new URL(suppliedOrigin).hostname;
+      if (
+        host === "localhost" ||
+        host === "127.0.0.1" ||
+        host.endsWith(".local") ||
+        /^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[0-1])\.)/.test(host)
+      ) {
+        return true;
+      }
+    } catch {
+      return false;
+    }
+  }
+
   // TLS is terminated before requests reach Node on managed Hostinger apps, so
   // request.url may contain a private upstream origin. Keep CSRF validation
   // strict by accepting only the explicitly configured public application URL.

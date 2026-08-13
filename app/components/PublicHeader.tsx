@@ -13,16 +13,6 @@ export const publicLanguages = [
 
 export type PublicLanguage = (typeof publicLanguages)[number]["code"];
 
-const primaryHrefs = new Set([
-  "/about",
-  "/our-work",
-  "/giving",
-  "/certificates",
-  "/stories",
-  "/events",
-  "/gallery",
-]);
-
 export function PublicHeader({
   activeHref,
   language = "en",
@@ -33,33 +23,23 @@ export function PublicHeader({
   onLanguageChange?: (language: PublicLanguage) => void;
 }) {
   const [languageOpen, setLanguageOpen] = useState(false);
-  const [moreOpen, setMoreOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const languageMenuId = useId();
-  const moreMenuId = useId();
   const mobileMenuId = useId();
   const languageRef = useRef<HTMLDivElement>(null);
-  const moreRef = useRef<HTMLDivElement>(null);
   const currentLanguage =
     publicLanguages.find((option) => option.code === language) ?? publicLanguages[0];
 
-  const navItems = publicNavigation.filter((item) => !("cta" in item && item.cta));
-  const primaryLinks = navItems.filter((item) => primaryHrefs.has(item.href));
-  const moreLinks = navItems.filter(
-    (item) => item.href !== "/" && !primaryHrefs.has(item.href),
-  );
+  const links = publicNavigation.filter((item) => !("cta" in item && item.cta));
   const cta = publicNavigation.find((item) => "cta" in item && item.cta);
 
   useEffect(() => {
     function onPointerDown(event: MouseEvent) {
-      const target = event.target as Node;
-      if (!languageRef.current?.contains(target)) setLanguageOpen(false);
-      if (!moreRef.current?.contains(target)) setMoreOpen(false);
+      if (!languageRef.current?.contains(event.target as Node)) setLanguageOpen(false);
     }
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         setLanguageOpen(false);
-        setMoreOpen(false);
         setMobileOpen(false);
       }
     }
@@ -84,96 +64,34 @@ export function PublicHeader({
     return activeHref === href;
   }
 
-  const moreActive = moreLinks.some((item) => isActive(item.href));
-
   return (
-    <header className="public-header-shell bcc-menubar bcc-menubar--pro pdf-menubar">
-      <div className="bcc-menubar-bar">
-        <Link
-          className="wordmark"
-          href="/"
-          aria-label="PDF community home"
-        >
+    <header className="pdf-masthead">
+      <div className="pdf-flag" aria-hidden="true">
+        <i />
+        <i />
+        <i />
+      </div>
+      <div className="pdf-masthead-top">
+        <Link className="pdf-wordmark" href="/" aria-label="PDF community home">
           <LogoMark />
-          <span className="brand-name">
-            PDF
-            <br />
-            MYANMAR RELIEF
+          <span>
+            <b>PDF</b>
+            <small>Myanmar civilian relief</small>
           </span>
         </Link>
-
-        <nav className="bcc-menubar-nav bcc-menubar-nav--desktop" aria-label="Community pages">
-          {primaryLinks.map((item) => {
-            const active = isActive(item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={active ? "active" : undefined}
-                aria-current={active ? "page" : undefined}
-              >
-                {item.label}
-              </Link>
-            );
-          })}
-
-          {moreLinks.length > 0 && (
-            <div className="bcc-menubar-more" ref={moreRef}>
-              <button
-                type="button"
-                className={moreActive ? "active" : undefined}
-                aria-expanded={moreOpen}
-                aria-controls={moreMenuId}
-                aria-haspopup="menu"
-                onClick={() => {
-                  setMoreOpen((value) => !value);
-                  setLanguageOpen(false);
-                }}
-              >
-                More
-                <span className="bcc-menubar-caret" aria-hidden="true" />
-              </button>
-              {moreOpen && (
-                <div className="bcc-menubar-dropdown" id={moreMenuId} role="menu">
-                  {moreLinks.map((item) => {
-                    const active = isActive(item.href);
-                    return (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        role="menuitem"
-                        className={active ? "active" : undefined}
-                        aria-current={active ? "page" : undefined}
-                        onClick={() => setMoreOpen(false)}
-                      >
-                        {item.label}
-                      </Link>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          )}
-        </nav>
-
-        <div className="bcc-menubar-tools">
-          <div className="language-access" ref={languageRef}>
+        <div className="pdf-masthead-tools">
+          <div className="pdf-lang" ref={languageRef}>
             <button
               type="button"
-              className="language-trigger"
               aria-expanded={languageOpen}
               aria-controls={languageMenuId}
               aria-haspopup="menu"
-              onClick={() => {
-                setLanguageOpen((value) => !value);
-                setMoreOpen(false);
-              }}
+              onClick={() => setLanguageOpen((value) => !value)}
             >
-              <span className="language-trigger-value">{currentLanguage.label}</span>
-              <span className="bcc-menubar-caret" aria-hidden="true" />
+              {currentLanguage.label}
             </button>
             {languageOpen && (
-              <div className="language-menu" id={languageMenuId} role="menu">
+              <div id={languageMenuId} role="menu">
                 {publicLanguages.map((option) => (
                   <button
                     type="button"
@@ -186,68 +104,66 @@ export function PublicHeader({
                     }}
                   >
                     {option.label}
-                    {option.code === language && <span aria-hidden="true">✓</span>}
                   </button>
                 ))}
-                <a href="/get-involved">
-                  More language help
-                </a>
               </div>
             )}
           </div>
-
           {cta && (
-            <Link className="public-cta bcc-menubar-cta" href={cta.href}>
+            <Link className="pdf-cta" href={cta.href}>
               {cta.label}
             </Link>
           )}
-
           <button
             type="button"
-            className="bcc-menubar-burger"
+            className="pdf-burger"
             aria-expanded={mobileOpen}
             aria-controls={mobileMenuId}
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             onClick={() => setMobileOpen((value) => !value)}
           >
-            <span />
-            <span />
-            <span />
+            Menu
           </button>
         </div>
       </div>
-
+      <nav className="pdf-rail" aria-label="Site sections">
+        {links.map((item) => {
+          const active = isActive(item.href);
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={active ? "is-on" : undefined}
+              aria-current={active ? "page" : undefined}
+            >
+              {item.label}
+            </Link>
+          );
+        })}
+      </nav>
       {mobileOpen && (
         <>
           <button
             type="button"
-            className="bcc-menubar-backdrop"
+            className="pdf-drawer-dim"
             aria-label="Close menu"
             onClick={() => setMobileOpen(false)}
           />
-          <nav className="bcc-menubar-drawer" id={mobileMenuId} aria-label="All pages">
-            {navItems
+          <nav className="pdf-drawer" id={mobileMenuId} aria-label="All pages">
+            {links
               .filter((item) => item.href !== "/")
-              .map((item) => {
-                const active = isActive(item.href);
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={active ? "active" : undefined}
-                    aria-current={active ? "page" : undefined}
-                    onClick={() => setMobileOpen(false)}
-                  >
-                    {item.label}
-                  </Link>
-                );
-              })}
+              .map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={isActive(item.href) ? "is-on" : undefined}
+                  onClick={() => setMobileOpen(false)}
+                >
+                  {item.label}
+                </Link>
+              ))}
             {cta && (
-              <Link
-                className="bcc-menubar-drawer-cta"
-                href={cta.href}
-                onClick={() => setMobileOpen(false)}
-              >
+              <Link className="pdf-cta" href={cta.href} onClick={() => setMobileOpen(false)}>
                 {cta.label}
               </Link>
             )}

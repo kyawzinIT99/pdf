@@ -17,6 +17,7 @@ export function AdminLogin({ onSignedIn }: { onSignedIn: (user: StaffUser) => vo
     try {
       const response = await fetch("/api/auth/session", {
         method: "POST",
+        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
@@ -35,7 +36,7 @@ export function AdminLogin({ onSignedIn }: { onSignedIn: (user: StaffUser) => vo
       <section className="admin-login-brand">
         <div className="wordmark">
           <LogoMark />
-          <span>BURMESE CATHOLIC<br />COMMUNITY WA</span>
+          <span>PDF<br />MYANMAR RELIEF</span>
         </div>
         <p>PRIVATE STAFF WORKSPACE</p>
         <h1>Publish with care. Manage access with confidence.</h1>

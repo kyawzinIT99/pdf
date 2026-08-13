@@ -7,6 +7,7 @@ import {
   rateLimitKey,
   recordAudit,
 } from "../../lib/security";
+import { subscribeAutomationContext } from "../../lib/site-context";
 
 async function ensureSchema(db: D1Database) {
   await db.prepare(`CREATE TABLE IF NOT EXISTS mail_subscribers (
@@ -46,6 +47,12 @@ export async function GET(request: Request) {
     );
   }
   const db = authRuntime().DB;
+  if (!db) {
+    return Response.json(
+      { error: "Database is not connected", subscribers: [] },
+      { status: 503, headers: noStoreHeaders() },
+    );
+  }
   await ensureSchema(db);
   const result = await db
     .prepare(
@@ -65,6 +72,15 @@ export async function POST(request: Request) {
   const rejected = mutationRejected(request);
   if (rejected) return rejected;
   const db = authRuntime().DB;
+  if (!db) {
+    return Response.json(
+      {
+        error:
+          "Subscribe is not connected yet. Set DB_HOST, DB_USER, DB_PASSWORD and DB_NAME in .env.local.",
+      },
+      { status: 503 },
+    );
+  }
   await ensureSchema(db);
 
   const key = await rateLimitKey("mail-subscribe", request);
@@ -86,6 +102,7 @@ export async function POST(request: Request) {
     email?: string;
     consent?: boolean;
     source?: string;
+    page?: string;
     website?: string;
   };
 
@@ -97,6 +114,8 @@ export async function POST(request: Request) {
   const name = String(payload.name || "").trim().slice(0, 80);
   const email = normalizeEmail(String(payload.email || ""));
   const source = String(payload.source || "website").trim().slice(0, 40) || "website";
+  const page = String(payload.page || source).trim().slice(0, 80) || "/";
+  const context = subscribeAutomationContext(request, { source, page });
 
   if (!isValidEmail(email)) {
     return Response.json({ error: "A valid email address is required." }, { status: 400 });
@@ -139,6 +158,9 @@ export async function POST(request: Request) {
         name,
         email,
         source,
+        page,
+        consent: true,
+        ...context,
       });
       return Response.json({
         ok: true,
@@ -161,6 +183,9 @@ export async function POST(request: Request) {
       name,
       email,
       source,
+      page,
+      consent: true,
+      ...context,
     });
 
     return Response.json(

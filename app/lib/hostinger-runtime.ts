@@ -1,4 +1,5 @@
 import mysql, { type Pool, type ResultSetHeader, type RowDataPacket } from "mysql2/promise";
+import { createLocalDatabase } from "./local-sqlite";
 
 type RuntimeValues = Record<string, unknown> & { DB?: D1Database; MEDIA?: R2Bucket };
 type RuntimeGlobal = typeof globalThis & {
@@ -281,7 +282,12 @@ export function applicationRuntime(): RuntimeValues {
   if (runtimeGlobal.__bccRuntime) return runtimeGlobal.__bccRuntime;
   const env = environment();
   const config = databaseConfig();
-  if (!config) return (runtimeGlobal.__bccRuntime = { ...env });
+  if (!config) {
+    return (runtimeGlobal.__bccRuntime = {
+      ...env,
+      DB: createLocalDatabase() as unknown as D1Database,
+    });
+  }
   const pool = mysql.createPool(config);
   return (runtimeGlobal.__bccRuntime = { ...env, DB: new MySqlDatabase(pool), MEDIA: new MySqlMedia(pool) });
 }

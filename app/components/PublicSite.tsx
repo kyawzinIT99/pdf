@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { seedPosts } from "../lib/content";
 import {
   defaultHomePage,
@@ -16,7 +16,7 @@ import { MailSubscribe } from "./MailSubscribe";
 
 const copy = {
   en: {
-    eyebrow: "Dignity • Solidarity • Care",
+    eyebrow: "Civilian record · Myanmar",
     title: "Stand with people. Rebuild with care.",
     intro:
       "PDF is a community relief platform for civilians in and from Myanmar. Verified stories, transparent giving, events and practical pathways.",
@@ -29,7 +29,7 @@ const copy = {
     ],
   },
   my: {
-    eyebrow: "ဂုဏ်သိက္ခာ • စည်းလုံးမှု • စောင့်ရှောက်မှု",
+    eyebrow: "အရပ်သား မှတ်တမ်း · မြန်မာ",
     title: "လူထုနှင့်အတူ ရပ်တည်သည်။ ဂရုစိုက်မှုဖြင့် ပြန်လည်တည်ဆောက်သည်။",
     intro:
       "PDF သည် မြန်မာပြည်သူများအတွက် အရပ်သား လူသားချင်းစာနာမှု ပလက်ဖောင်းဖြစ်သည်။",
@@ -42,7 +42,7 @@ const copy = {
     ],
   },
   kar: {
-    eyebrow: "Dignity • Solidarity • Care",
+    eyebrow: "Civilian record · Myanmar",
     title: "Stand with people. Rebuild with care.",
     intro:
       "PDF publishes verified community relief updates for civilians affected by the coup.",
@@ -65,89 +65,6 @@ const copy = {
   }
 >;
 
-/* ── Animated counter hook ────────────────────────────────────────── */
-function useCounter(target: number, duration = 2000) {
-  const [count, setCount] = useState(0);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const element = ref.current;
-    if (!element) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          const start = performance.now();
-          const step = (now: number) => {
-            const progress = Math.min((now - start) / duration, 1);
-            const eased = 1 - Math.pow(1 - progress, 3);
-            setCount(Math.floor(eased * target));
-            if (progress < 1) requestAnimationFrame(step);
-          };
-          requestAnimationFrame(step);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.3 },
-    );
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [target, duration]);
-
-  return { count, ref };
-}
-
-/* ── Impact stat component ────────────────────────────────────────── */
-function ImpactStat({
-  value,
-  suffix = "",
-  label,
-}: {
-  value: number;
-  suffix?: string;
-  label: string;
-}) {
-  const { count, ref } = useCounter(value);
-  return (
-    <div className="v2-impact-stat" ref={ref}>
-      <span className="v2-impact-number">
-        {count}
-        {suffix}
-      </span>
-      <span className="v2-impact-label">{label}</span>
-    </div>
-  );
-}
-
-/* ── Pathway icons ────────────────────────────────────────── */
-const pathwayIcons = [
-  /* Book / Learn */
-  <svg key="learn" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-  </svg>,
-  /* People / Support */
-  <svg key="support" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-    <circle cx="9" cy="7" r="4" />
-    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-  </svg>,
-  /* Heart / Give */
-  <svg key="give" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-  </svg>,
-  /* Chip / Tech */
-  <svg key="tech" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="4" y="4" width="16" height="16" rx="2" />
-    <rect x="9" y="9" width="6" height="6" />
-    <line x1="9" y1="1" x2="9" y2="4" /><line x1="15" y1="1" x2="15" y2="4" />
-    <line x1="9" y1="20" x2="9" y2="23" /><line x1="15" y1="20" x2="15" y2="23" />
-    <line x1="20" y1="9" x2="23" y2="9" /><line x1="20" y1="14" x2="23" y2="14" />
-    <line x1="1" y1="9" x2="4" y2="9" /><line x1="1" y1="14" x2="4" y2="14" />
-  </svg>,
-];
-
 export function PublicSite() {
   const [language, setLanguage] = useState<PublicLanguage>("en");
   const [home, setHome] = useState<HomePageSettings>(defaultHomePage);
@@ -156,7 +73,7 @@ export function PublicSite() {
 
   useEffect(() => {
     fetch("/api/home")
-      .then((response) => response.ok ? response.json() : Promise.reject())
+      .then((response) => (response.ok ? response.json() : Promise.reject()))
       .then((payload) => {
         if (payload.home) setHome(payload.home);
       })
@@ -165,7 +82,7 @@ export function PublicSite() {
 
   useEffect(() => {
     fetch("/api/posts")
-      .then((response) => response.ok ? response.json() : Promise.reject())
+      .then((response) => (response.ok ? response.json() : Promise.reject()))
       .then((payload) => {
         if (Array.isArray(payload.posts) && payload.posts.length) setPosts(payload.posts);
       })
@@ -192,271 +109,172 @@ export function PublicSite() {
     "/story-cultural.png",
     "/story-learning.png",
   ];
-  return (
-    <main className="public-site civic-public-site v2-redesign pdf-theme">
-      {/* ── Announcement Bar ────────────────────────────────── */}
-      <div className="v2-announcement">
-        <span className="v2-announcement-dot" />
-        <span>{home.announcement}</span>
-        <a href="#stories">Read latest stories →</a>
-      </div>
+  const lead = featuredPosts[0];
+  const rest = featuredPosts.slice(1);
 
-      {/* ── Header ──────────────────────────────────────────── */}
+  return (
+    <main className="pdf-shell">
+      <p className="pdf-ticker">
+        <span>{home.announcement}</span>
+        <a href="#folio">Latest stories</a>
+      </p>
+
       <PublicHeader
         activeHref="/"
         language={language}
         onLanguageChange={setLanguage}
       />
 
-      {/* ── Cinematic Hero ──────────────────────────────────── */}
-      <section
-        className="v2-hero"
-        dir={language === "my" ? "ltr" : "ltr"}
-      >
-        <div className="v2-hero-bg">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={localizedHome.heroImageUrl} alt={localizedHome.heroImageAlt} />
-          <div className="v2-hero-overlay" />
-        </div>
-        <div className="v2-hero-content">
-          <p className="v2-hero-eyebrow">{localizedHome.eyebrow}</p>
-          <h1 className="v2-hero-title">{localizedHome.title}</h1>
-          <p className="v2-hero-intro">{localizedHome.intro}</p>
-          <div className="v2-hero-actions">
-            <a className="v2-btn v2-btn-gold" href="#support-pathways">
-              Find a path
+      <section className="pdf-stage">
+        <div className="pdf-stage-copy">
+          <p className="pdf-kicker">{localizedHome.eyebrow}</p>
+          <h1>{localizedHome.title}</h1>
+          <p className="pdf-dek">{localizedHome.intro}</p>
+          <div className="pdf-actions">
+            <a className="pdf-cta" href="#index">
+              Choose a path
             </a>
-            <Link className="v2-btn v2-btn-outline" href="/get-involved">
+            <Link className="pdf-ghost" href="/get-involved">
               Get involved
             </Link>
           </div>
-          <p className="v2-hero-notice">
+          <p className="pdf-note">
             Independent civilian humanitarian organisation. Not a government or armed group.
           </p>
         </div>
-        <div className="v2-hero-scroll-hint" aria-hidden="true">
-          <span />
-        </div>
+        <figure className="pdf-stage-media">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={localizedHome.heroImageUrl} alt={localizedHome.heroImageAlt} />
+          <figcaption>Published photograph · Admin Panel</figcaption>
+        </figure>
       </section>
 
-      {/* ── Impact Strip ─────────────────────────────────────── */}
-      <section className="v2-impact-strip" aria-label="Community impact numbers">
-        <ImpactStat value={4} suffix="+" label="Years of civilian solidarity" />
-        <ImpactStat value={8} suffix="" label="Public pages editors can update" />
-        <ImpactStat value={7} suffix="" label="Automation workflows connected" />
-        <ImpactStat value={3} label="Languages on this site" />
+      <section className="pdf-ledger" aria-label="Site facts">
+        <div><b>04+</b><span>Years of civilian solidarity</span></div>
+        <div><b>08</b><span>Pages editors can update</span></div>
+        <div><b>07</b><span>n8n workflows connected</span></div>
+        <div><b>03</b><span>Languages on this site</span></div>
       </section>
 
-      {/* ── Community Stories ─────────────────────────────────── */}
-      <section className="v2-stories" id="stories" aria-labelledby="v2-stories-title">
-        <div className="v2-stories-header">
-          <p className="v2-section-eyebrow">Community in action</p>
-          <h2 id="v2-stories-title">Stories from our community</h2>
-          <p className="v2-stories-subtitle">Real voices. Shared experiences. Honest storytelling.</p>
-        </div>
-        <div className="v2-stories-grid">
-          {featuredPosts.map((post, index) => {
-            const mediaUrl = post.mediaUrl || storyImages[index];
-            return (
-              <article className="v2-story-card" key={post.slug}>
-                <div className="v2-story-image">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={mediaUrl} alt={post.mediaAlt || "PDF community activity"} />
-                  <span className="v2-story-category">{post.category}</span>
-                </div>
-                <div className="v2-story-body">
-                  <time className="v2-story-date">{post.date}</time>
+      <section className="pdf-folio" id="folio">
+        <header>
+          <p className="pdf-kicker">Dispatch</p>
+          <h2>Stories from the community</h2>
+        </header>
+        <div className="pdf-folio-grid">
+          {lead && (
+            <article className="pdf-lead">
+              <div className="pdf-lead-media">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={lead.mediaUrl || storyImages[0]} alt={lead.mediaAlt || "PDF community activity"} />
+              </div>
+              <div>
+                <span>{lead.category}</span>
+                <time>{lead.date}</time>
+                <h3>{lead.title}</h3>
+                <p>{lead.excerpt}</p>
+                <Link href="/stories">Continue in News &amp; stories</Link>
+              </div>
+            </article>
+          )}
+          <div className="pdf-stack">
+            {rest.map((post, index) => (
+              <article key={post.slug}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={post.mediaUrl || storyImages[index + 1]} alt={post.mediaAlt || post.title} />
+                <div>
+                  <time>{post.date}</time>
                   <h3>{post.title}</h3>
-                  <p>{post.excerpt}</p>
-                  <Link href="/stories" className="v2-story-link">
-                    Read story <span aria-hidden="true">→</span>
-                  </Link>
+                  <Link href="/stories">Read</Link>
                 </div>
               </article>
-            );
-          })}
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* ── Mission Statement ────────────────────────────────── */}
-      <section className="v2-mission" aria-label="Mission statement">
-        <blockquote>
-          <span className="v2-mission-mark" aria-hidden="true">&ldquo;</span>
-          To serve civilians — documenting care, solidarity and hope with honesty.
-        </blockquote>
+      <section className="pdf-banner" aria-label="Mission">
+        <p>People first. No rumour. Care that can be shown.</p>
       </section>
 
-      {/* ── Support Pathways ─────────────────────────────────── */}
-      <section className="v2-pathways" id="support-pathways">
-        <div className="v2-pathways-header">
-          <p className="v2-section-eyebrow">Clear starting points</p>
+      <section className="pdf-index" id="index">
+        <header>
+          <p className="pdf-kicker">Index</p>
           <h2>{localizedHome.helpTitle}</h2>
           <p>{localizedHome.helpIntro}</p>
-        </div>
-        <div className="v2-pathways-grid">
+        </header>
+        <ol>
           {localizedHome.pathways.map((pathway, index) => {
             if (!pathway.visible) return null;
             const external = pathway.href.startsWith("https://");
-            const accentClasses = ["v2-pw-gold", "v2-pw-sky", "v2-pw-coral", "v2-pw-navy"];
             return (
-              <a
-                className={`v2-pathway-card ${accentClasses[index]} ${index === 3 ? "v2-pathway-tech" : ""}`}
-                href={pathway.href}
-                key={index}
-                target={external ? "_blank" : undefined}
-                rel={external ? "noreferrer" : undefined}
-              >
-                <div className="v2-pathway-icon">{pathwayIcons[index]}</div>
-                <span className="v2-pathway-number">{String(index + 1).padStart(2, "0")}</span>
-                <strong>{pathway.title}</strong>
-                <p>{pathway.description}</p>
-                <span className="v2-pathway-arrow" aria-hidden="true">
-                  {external ? "↗" : "→"}
-                </span>
-              </a>
+              <li key={index}>
+                <a href={pathway.href} target={external ? "_blank" : undefined} rel={external ? "noreferrer" : undefined}>
+                  <em>{String(index + 1).padStart(2, "0")}</em>
+                  <strong>{pathway.title}</strong>
+                  <span>{pathway.description}</span>
+                </a>
+              </li>
             );
           })}
+        </ol>
+      </section>
+
+      <section className="pdf-triad" id="work">
+        <header>
+          <p className="pdf-kicker">Mandate</p>
+          <h2>Relief. Record. Connection.</h2>
+        </header>
+        <div>
+          <article>
+            <h3>Civilian relief</h3>
+            <p>Practical help shaped with trusted community partners.</p>
+            <Link href="/our-work">Our work</Link>
+          </article>
+          <article>
+            <h3>Public record</h3>
+            <p>Stories and figures appear only after administrator review.</p>
+            <Link href="/stories">News &amp; stories</Link>
+          </article>
+          <article>
+            <h3>Gathering</h3>
+            <p>Events and galleries keep people connected across distance.</p>
+            <Link href="/events">Events</Link>
+          </article>
         </div>
       </section>
 
-      {/* ── Trust Strip ──────────────────────────────────────── */}
-      <section className="v2-trust" aria-label="Verified information">
-        <div className="v2-trust-content">
-          <div className="v2-trust-info">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-            </svg>
-            <div>
-              <strong>Verified information first</strong>
-              <p>Public pages only show copy, photos and figures published from the Admin Panel.</p>
-            </div>
-          </div>
-          <div className="v2-trust-links">
-            <Link href="/stories">News & stories</Link>
-            <Link href="/giving">Giving transparency</Link>
-          </div>
+      <section className="pdf-band">
+        <div>
+          <p className="pdf-kicker">Take part</p>
+          <h2>Bring time, language and local knowledge.</h2>
         </div>
-      </section>
-
-      {/* ── Programs / What Moves Us ─────────────────────────── */}
-      <section className="v2-programs" id="work">
-        <div className="v2-programs-header">
-          <p className="v2-section-eyebrow">What moves us</p>
-          <h2>Practical support. Shared responsibility.</h2>
-          <p>
-            People stay at the centre through clear information, partnership
-            and accountable action.
-          </p>
-        </div>
-        <div className="v2-programs-grid">
-          {[
-            {
-              index: "01",
-              title: "Civilian relief",
-              description: "Practical help shaped with trusted community partners.",
-              accent: "v2-prog-coral",
-              icon: (
-                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                  <polyline points="9 22 9 12 15 12 15 22" />
-                </svg>
-              ),
-            },
-            {
-              index: "02",
-              title: "Learning together",
-              description: "Shared resources that turn knowledge into confidence.",
-              accent: "v2-prog-gold",
-              icon: (
-                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                </svg>
-              ),
-            },
-            {
-              index: "03",
-              title: "Stronger connections",
-              description: "Pathways linking people, services and opportunities.",
-              accent: "v2-prog-sky",
-              icon: (
-                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="18" cy="5" r="3" />
-                  <circle cx="6" cy="12" r="3" />
-                  <circle cx="18" cy="19" r="3" />
-                  <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-                  <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-                </svg>
-              ),
-            },
-          ].map((program) => (
-            <article className={`v2-program-card ${program.accent}`} key={program.title}>
-              <div className="v2-program-icon">{program.icon}</div>
-              <span className="v2-program-index">{program.index}</span>
-              <h3>{program.title}</h3>
-              <p>{program.description}</p>
-              <Link href="/stories" className="v2-program-link">
-                Discover more <span aria-hidden="true">↗</span>
-              </Link>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      {/* ── Join / CTA ───────────────────────────────────────── */}
-      <section className="v2-join" id="join">
-        <div className="v2-join-inner">
-          <div className="v2-join-copy">
-            <p className="v2-section-eyebrow">Take part responsibly</p>
-            <h2>Bring your ideas and local knowledge.</h2>
-          </div>
-          <div className="v2-join-actions">
-            <Link className="v2-btn v2-btn-gold" href="/get-involved">
-              Get involved <span aria-hidden="true">↗</span>
-            </Link>
-            <p>Public pathways remain subject to organisation approval and verification.</p>
-          </div>
-        </div>
+        <Link className="pdf-cta" href="/get-involved">
+          Get involved
+        </Link>
       </section>
 
       <MailSubscribe source="home" />
 
-      {/* ── Footer ───────────────────────────────────────────── */}
-      <footer className="v2-footer">
-        <div className="v2-footer-inner">
-          <div className="v2-footer-brand">
-            <LogoMark />
-            <div>
-              <strong>PDF Myanmar Relief</strong>
-              <span>Civilian humanitarian community</span>
-            </div>
-          </div>
-          <div className="v2-footer-columns">
-            <div>
-              <strong>Explore</strong>
-              <Link href="/about">About</Link>
-              <Link href="/our-work">Our work</Link>
-              <Link href="/giving">Giving</Link>
-              <Link href="/events">Events</Link>
-              <Link href="/gallery">Gallery</Link>
-            </div>
-            <div>
-              <strong>Take part</strong>
-              <Link href="/get-involved">Volunteer</Link>
-              <Link href="/get-involved">Partner with us</Link>
-              <Link href="/get-involved">Contact</Link>
-            </div>
-            <div>
-              <strong>Official information</strong>
-              <Link href="/approach">How we work</Link>
-              <Link href="/certificates">Certificates</Link>
-              <Link href="/stories">News & stories</Link>
-            </div>
-          </div>
-          <div className="v2-footer-bottom">
-            <span>Independent civilian organisation</span>
-            <span>Accountable • Community-led • Admin-published</span>
+      <footer className="pdf-colophon">
+        <div className="pdf-colophon-brand">
+          <LogoMark />
+          <div>
+            <strong>PDF Myanmar Relief</strong>
+            <span>Civilian humanitarian community</span>
           </div>
         </div>
+        <nav>
+          <Link href="/about">About</Link>
+          <Link href="/our-work">Our work</Link>
+          <Link href="/giving">Giving</Link>
+          <Link href="/stories">News</Link>
+          <Link href="/events">Events</Link>
+          <Link href="/gallery">Gallery</Link>
+          <Link href="/approach">Approach</Link>
+          <Link href="/get-involved">Contact</Link>
+        </nav>
+        <p>Independent civilian organisation · Admin-published · Accountable</p>
       </footer>
     </main>
   );

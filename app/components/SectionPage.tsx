@@ -100,7 +100,7 @@ export function SectionPage({ sectionKey }: { sectionKey: SectionKey }) {
   }, [section, sectionKey]);
 
   return (
-    <main className={`section-page section-${sectionKey} pdf-theme v2-redesign`}>
+    <main className={`pdf-shell pdf-inner section-page section-${sectionKey}`}>
       <PublicHeader
         activeHref={`/${sectionKey}`}
         language={language}
@@ -129,7 +129,7 @@ export function SectionPage({ sectionKey }: { sectionKey: SectionKey }) {
                 <span aria-hidden="true">01</span>
                 {pageCopy.eyebrow}
               </p>
-              <h1 className="sr-only">{pageCopy.title}</h1>
+              <h1>{pageCopy.title}</h1>
               <p className="section-lead">{pageCopy.summary}</p>
             </div>
           </>
@@ -365,22 +365,10 @@ export function SectionPage({ sectionKey }: { sectionKey: SectionKey }) {
             </div>
 
             <div className="committee-grid">
-              {aboutProfile.committee.slice(0, 11).map((member) => (
-                <CommitteeCard member={member} key={member.name} />
+              {aboutProfile.committee.map((member, index) => (
+                <CommitteeCard member={member} key={`${index}-${member.role}`} />
               ))}
             </div>
-
-            <details className="executive-directory">
-              <summary>
-                View all {aboutProfile.committee.slice(11).length} executive committee members
-                <span aria-hidden="true">+</span>
-              </summary>
-              <div className="committee-grid">
-                {aboutProfile.committee.slice(11).map((member) => (
-                  <CommitteeCard member={member} key={member.name} />
-                ))}
-              </div>
-            </details>
           </section>
 
           <section className="bcc-contact" aria-labelledby="bcc-contact-title">

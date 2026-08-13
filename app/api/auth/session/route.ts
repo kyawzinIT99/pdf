@@ -101,9 +101,10 @@ export async function POST(request: Request) {
       { user },
       { headers: { "Set-Cookie": cookie, "Cache-Control": "no-store" } },
     );
-  } catch {
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : "Unable to sign in";
     return Response.json(
-      { error: "Unable to sign in" },
+      { error: process.env.NODE_ENV === "production" ? "Unable to sign in" : detail },
       { status: 500, headers: noStoreHeaders() },
     );
   }

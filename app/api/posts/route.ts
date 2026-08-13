@@ -277,7 +277,9 @@ async function enrichPosts(db: D1Database, rows: Record<string, unknown>[]) {
 export async function GET(request: Request) {
   try {
     const db = runtime().DB;
-    if (!db) throw new Error("D1 binding DB is unavailable");
+    if (!db) {
+      return Response.json({ posts: [] }, { headers: noStoreHeaders() });
+    }
     await ensureSchema(db);
     const url = new URL(request.url);
     const adminScope = url.searchParams.get("scope") === "admin";
@@ -321,10 +323,7 @@ export async function GET(request: Request) {
       db,
       result.results as Record<string, unknown>[],
     );
-    return Response.json(
-      { posts },
-      { headers: adminScope ? noStoreHeaders() : undefined },
-    );
+    return Response.json({ posts }, { headers: noStoreHeaders() });
   } catch {
     return Response.json(
       { error: "Unable to load posts" },
@@ -390,7 +389,9 @@ export async function POST(request: Request) {
     const mediaIds = parseMediaIds(payload);
     const mediaId = mediaIds[0] ?? null;
     const db = runtime().DB;
-    if (!db) throw new Error("D1 binding DB is unavailable");
+    if (!db) {
+      return Response.json({ error: "Database is not connected" }, { status: 503 });
+    }
     await ensureSchema(db);
 
     const row = await db
@@ -510,6 +511,9 @@ export async function PATCH(request: Request) {
       );
     }
     const db = runtime().DB;
+    if (!db) {
+      return Response.json({ error: "Database is not connected" }, { status: 503 });
+    }
     await ensureSchema(db);
     const existing = await db.prepare("SELECT * FROM posts WHERE id = ?").bind(id).first();
     if (!existing) return Response.json({ error: "Post not found" }, { status: 404 });
@@ -641,6 +645,9 @@ export async function DELETE(request: Request) {
     }
 
     const db = runtime().DB;
+    if (!db) {
+      return Response.json({ error: "Database is not connected" }, { status: 503 });
+    }
     await ensureSchema(db);
     const existing = await db.prepare("SELECT id, title, status FROM posts WHERE id = ?").bind(id).first();
     if (!existing) {

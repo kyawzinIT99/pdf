@@ -147,6 +147,12 @@ export async function GET(request: Request) {
     return Response.json({ error: "Valid page key is required" }, { status: 400 });
   }
   const db = authRuntime().DB;
+  if (!db) {
+    return Response.json(
+      { page: pageResponse(key as SectionKey, null) },
+      { headers: noStoreHeaders() },
+    );
+  }
   await ensureSchema(db);
   const page = await db
     .prepare("SELECT key, eyebrow, title, summary, statement, features_json, about_json, media_json, content_json, updated_at FROM site_pages WHERE key = ?")
@@ -226,6 +232,9 @@ export async function PATCH(request: Request) {
     return Response.json({ error: "Complete all page fields within their limits" }, { status: 400 });
   }
   const db = authRuntime().DB;
+  if (!db) {
+    return Response.json({ error: "Database is not connected" }, { status: 503 });
+  }
   await ensureSchema(db);
   const about = payload.key === "about"
     ? normalizeAboutProfile(payload.about)

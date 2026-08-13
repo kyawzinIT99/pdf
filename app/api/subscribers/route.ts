@@ -227,6 +227,9 @@ export async function PATCH(request: Request) {
     }
 
     const db = authRuntime().DB;
+    if (!db) {
+      return Response.json({ error: "Database is not connected" }, { status: 503 });
+    }
     await ensureSchema(db);
     const row = await db
       .prepare(

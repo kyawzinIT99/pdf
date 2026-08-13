@@ -16,6 +16,7 @@ export function CommunityContactForm() {
     try {
       const response = await fetch("/api/inquiries", {
         method: "POST",
+        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           source: "get-involved",

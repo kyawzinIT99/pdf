@@ -56,6 +56,7 @@ export function MrKyawZinAssistant({ draft, onApplySuggestion }: Props) {
     try {
       const response = await fetch("/api/ai/mr-kyaw-zin", {
         method: "POST",
+        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message: cleanMessage,

@@ -65,16 +65,22 @@ export function EventsPage() {
 
   useEffect(() => {
     const timer = window.setTimeout(() => setMounted(true), 0);
-    // Fetch events from admin API, fall back to seed data
-    fetch("/api/events")
-      .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((d) => {
-        if (Array.isArray(d.events) && d.events.length > 0) {
-          setCommunityEvents(d.events);
-        }
-      })
-      .catch(() => {/* keep seed events */ });
-    return () => window.clearTimeout(timer);
+    function loadEvents() {
+      fetch("/api/events", { cache: "no-store", credentials: "same-origin" })
+        .then((r) => (r.ok ? r.json() : Promise.reject()))
+        .then((d) => {
+          if (Array.isArray(d.events) && d.events.length > 0) {
+            setCommunityEvents(d.events);
+          }
+        })
+        .catch(() => {/* keep seed events */ });
+    }
+    loadEvents();
+    window.addEventListener("focus", loadEvents);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("focus", loadEvents);
+    };
   }, []);
 
   // Defer date-dependent filtering to client to avoid SSR hydration mismatch

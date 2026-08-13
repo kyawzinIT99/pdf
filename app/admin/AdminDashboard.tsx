@@ -101,7 +101,7 @@ export function AdminDashboard() {
   const [activeSection, setActiveSection] = useState<AdminSection>("overview");
 
   useEffect(() => {
-    fetch("/api/auth/session")
+    fetch("/api/auth/session", { credentials: "same-origin", cache: "no-store" })
       .then(async (response) => {
         const payload = await response.json();
         setSession(response.ok ? payload.user : null);
@@ -125,7 +125,7 @@ export function AdminDashboard() {
 
   useEffect(() => {
     if (!session) return;
-    fetch("/api/posts?scope=admin")
+    fetch("/api/posts?scope=admin", { credentials: "same-origin", cache: "no-store" })
       .then((response) => (response.ok ? response.json() : Promise.reject()))
       .then((payload) => {
         if (Array.isArray(payload.posts) && payload.posts.length) {
@@ -181,7 +181,7 @@ export function AdminDashboard() {
         "altText",
         composer.mediaAlt.trim() || composer.title.trim() || file.name,
       );
-      const response = await fetch("/api/media", { method: "POST", body: form });
+      const response = await fetch("/api/media", { method: "POST", credentials: "same-origin", body: form });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || "Unable to upload media");
       setComposer((current) => ({
@@ -234,6 +234,7 @@ export function AdminDashboard() {
     try {
       const response = await fetch("/api/posts", {
         method: editingId ? "PATCH" : "POST",
+        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: composer.title,
@@ -308,6 +309,7 @@ export function AdminDashboard() {
     try {
       const response = await fetch("/api/posts", {
         method: "PATCH",
+        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           id: post.id,
@@ -358,7 +360,10 @@ export function AdminDashboard() {
     setSaving(true);
     setNotice("");
     try {
-      const response = await fetch(`/api/posts?id=${post.id}`, { method: "DELETE" });
+      const response = await fetch(`/api/posts?id=${post.id}`, {
+        method: "DELETE",
+        credentials: "same-origin",
+      });
       const payload = await response.json();
       if (!response.ok) {
         throw new Error(
@@ -387,7 +392,7 @@ export function AdminDashboard() {
   }
 
   async function signOut() {
-    await fetch("/api/auth/session", { method: "DELETE" });
+    await fetch("/api/auth/session", { method: "DELETE", credentials: "same-origin" });
     setSession(null);
   }
 

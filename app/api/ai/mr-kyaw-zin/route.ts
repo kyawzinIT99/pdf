@@ -115,6 +115,12 @@ export async function POST(request: Request) {
 
   try {
     const db = authRuntime().DB;
+    if (!db) {
+      return Response.json(
+        { error: "Database is not connected" },
+        { status: 503, headers: noStoreHeaders() },
+      );
+    }
     // Overall chat limit (local + AI)
     const chatKey = await rateLimitKey("admin-assistant", request, String(user.id));
     const chatLimit = await checkRateLimit(db, {

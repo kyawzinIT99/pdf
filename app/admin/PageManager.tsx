@@ -83,7 +83,11 @@ export function PageManager({ currentUser }: { currentUser: StaffUser }) {
     const endpoint = key === "home"
       ? "/api/home"
       : `/api/pages?key=${encodeURIComponent(key)}`;
-    fetch(endpoint, { cache: "no-store", signal: controller.signal })
+    fetch(endpoint, {
+      cache: "no-store",
+      credentials: "same-origin",
+      signal: controller.signal,
+    })
       .then((response) => response.ok ? response.json() : Promise.reject())
       .then((payload) => {
         if (key === "home" && payload.home) setHome(payload.home);
@@ -123,6 +127,7 @@ export function PageManager({ currentUser }: { currentUser: StaffUser }) {
     try {
       const response = await fetch(key === "home" ? "/api/home" : "/api/pages", {
         method: "PATCH",
+        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(key === "home" ? home : { key, ...fields }),
       });
@@ -189,7 +194,11 @@ export function PageManager({ currentUser }: { currentUser: StaffUser }) {
           fields.content.certificates.items[index]?.title ||
           file.name,
       );
-      const response = await fetch("/api/media", { method: "POST", body: form });
+      const response = await fetch("/api/media", {
+        method: "POST",
+        credentials: "same-origin",
+        body: form,
+      });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || "Unable to upload image");
       const mediaId = Number(payload.media.id);
@@ -220,7 +229,11 @@ export function PageManager({ currentUser }: { currentUser: StaffUser }) {
       const form = new FormData();
       form.set("file", file);
       form.set("altText", home.heroImageAlt || file.name);
-      const response = await fetch("/api/media", { method: "POST", body: form });
+      const response = await fetch("/api/media", {
+        method: "POST",
+        credentials: "same-origin",
+        body: form,
+      });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || "Unable to upload hero image");
       const mediaId = Number(payload.media.id);
@@ -258,7 +271,11 @@ export function PageManager({ currentUser }: { currentUser: StaffUser }) {
           ? fields.media.heroImageAlt || file.name
           : fields.media.featureImages[target].alt || file.name,
       );
-      const response = await fetch("/api/media", { method: "POST", body: form });
+      const response = await fetch("/api/media", {
+        method: "POST",
+        credentials: "same-origin",
+        body: form,
+      });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || "Unable to upload image");
       const mediaId = Number(payload.media.id);

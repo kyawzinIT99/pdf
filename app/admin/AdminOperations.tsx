@@ -73,7 +73,10 @@ export function AdminOperations({
 
     async function loadMedia() {
       try {
-        const response = await fetch("/api/media");
+        const response = await fetch("/api/media", {
+          credentials: "same-origin",
+          cache: "no-store",
+        });
         if (!response.ok) throw new Error();
         const payload = await response.json();
         if (active) setMedia(payload.media || []);
@@ -85,7 +88,10 @@ export function AdminOperations({
     async function loadAudit() {
       if (currentUser.role === "editor") return;
       try {
-        const response = await fetch("/api/audit");
+        const response = await fetch("/api/audit", {
+          credentials: "same-origin",
+          cache: "no-store",
+        });
         if (!response.ok) throw new Error();
         const payload = await response.json();
         if (active) setEvents(payload.events || []);
@@ -99,7 +105,10 @@ export function AdminOperations({
     async function loadInquiries() {
       if (currentUser.role === "editor") return;
       try {
-        const response = await fetch("/api/inquiries");
+        const response = await fetch("/api/inquiries", {
+          credentials: "same-origin",
+          cache: "no-store",
+        });
         if (!response.ok) throw new Error();
         const payload = await response.json();
         if (active) setInquiries(payload.inquiries || []);
@@ -132,6 +141,7 @@ export function AdminOperations({
     setNotice("");
     const response = await fetch("/api/auth/password", {
       method: "POST",
+      credentials: "same-origin",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         currentPassword: values.get("currentPassword"),
@@ -155,6 +165,7 @@ export function AdminOperations({
   ) {
     const response = await fetch("/api/inquiries", {
       method: "PATCH",
+      credentials: "same-origin",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id, ...payload }),
     });

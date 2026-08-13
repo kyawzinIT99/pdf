@@ -20,19 +20,25 @@ Civilian humanitarian website for the PDF community. Public pages have a distinc
 
 Admin edits still flow through `/api/home`, `/api/pages`, `/api/posts`, `/api/events`, `/api/media`, `/api/inquiries` and `/api/subscribers`.
 
-## n8n (existing 7 workflows)
+## n8n (PDF copies — not BCC)
 
-Keep the same environment names and payload shapes:
+Seven **PDF** workflows live on the existing Hostinger n8n VPS. BCC workflows were copied, then renamed; BCC itself was not changed.
 
-1. Inquiry alert — `N8N_INQUIRY_ALERT_WEBHOOK`
-2. Publish distribution — `N8N_PUBLISH_WEBHOOK`
-3. Subscribe alert — `N8N_SUBSCRIBE_ALERT_WEBHOOK`
-4. Event mail — `N8N_EVENT_MAIL_WEBHOOK`
-5. n8n API / stats — `N8N_BASE_URL`, `N8N_API_KEY`
-6. Shared secret — `N8N_INQUIRY_WEBHOOK_SECRET` (also `/api/n8n/stats`)
-7. CRM routing — `CRM_ALERTS_ENABLED`, `CRM_TELEGRAM_CHAT_ID`, `CRM_ALERT_EMAIL`
+| Workflow | Webhook path |
+|---|---|
+| PDF Inquiry Alert | `/webhook/pdf-inquiry-alert` |
+| PDF Publish Distribution | `/webhook/pdf-publish-distribution` |
+| PDF Subscribe Alert | `/webhook/pdf-subscribe-alert` |
+| PDF Event Mail | `/webhook/pdf-event-mail` |
+| PDF Enquiry Follow-up Reminder | schedule (calls `PDF_SITE_ORIGIN/api/n8n/stats`) |
+| PDF Monthly Summary Report | schedule |
+| PDF Subscriber Re-engagement Nudge | schedule |
 
-Point these at your existing n8n instance. Do not commit secrets.
+Website env names stay the same (`N8N_INQUIRY_ALERT_WEBHOOK`, and so on) but must point at the **pdf-** paths, not `bcc-`.
+
+Gmail still uses the current n8n OAuth credential until you attach a PDF mailbox. Set n8n env `PDF_SITE_ORIGIN`, `PDF_N8N_WEBHOOK_SECRET` (same value as `N8N_INQUIRY_WEBHOOK_SECRET`), and later `PDF_ALERT_EMAIL` / `PDF_TELEGRAM_CHAT_ID` for the three scheduled jobs.
+
+Do not commit secrets.
 
 ## Local
 

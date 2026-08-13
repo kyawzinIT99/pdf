@@ -98,6 +98,12 @@ export async function GET(request: Request) {
   const q = (url.searchParams.get("q") || "").trim().toLowerCase();
 
   const db = authRuntime().DB;
+  if (!db) {
+    return Response.json(
+      { error: "Database is not connected", inquiries: [], subscribers: [], summary: null },
+      { status: 503, headers: noStoreHeaders() },
+    );
+  }
   await ensureInquirySchema(db);
   await ensureSubscriberSchema(db);
 

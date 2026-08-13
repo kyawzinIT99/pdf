@@ -34,7 +34,7 @@ export function TeamAccess({ currentUser }: { currentUser: StaffUser }) {
 
   useEffect(() => {
     if (currentUser.role !== "owner") return;
-    fetch("/api/users")
+    fetch("/api/users", { credentials: "same-origin", cache: "no-store" })
       .then(async (response) => {
         const payload = await response.json();
         if (!response.ok) throw new Error(payload.error);
@@ -70,6 +70,7 @@ export function TeamAccess({ currentUser }: { currentUser: StaffUser }) {
     try {
       const response = await fetch("/api/users", {
         method: editingId ? "PATCH" : "POST",
+        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(editingId ? { ...form, id: editingId } : form),
       });

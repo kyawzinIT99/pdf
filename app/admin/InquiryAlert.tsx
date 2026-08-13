@@ -25,7 +25,10 @@ export function InquiryAlert({
     let active = true;
     async function refresh() {
       try {
-        const response = await fetch("/api/inquiries");
+        const response = await fetch("/api/inquiries", {
+          credentials: "same-origin",
+          cache: "no-store",
+        });
         if (!response.ok) throw new Error();
         const payload = await response.json();
         if (active) {

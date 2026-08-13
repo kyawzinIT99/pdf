@@ -29,6 +29,12 @@ export async function POST(request: Request) {
     );
   }
   const db = authRuntime().DB;
+  if (!db) {
+    return Response.json(
+      { error: "Database is not connected" },
+      { status: 503, headers: noStoreHeaders() },
+    );
+  }
   await ensureAuthSchema(db);
   const row = (await db
     .prepare("SELECT password_hash FROM staff_users WHERE id = ?")

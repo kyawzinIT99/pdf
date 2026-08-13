@@ -62,41 +62,54 @@ export function SectionPage({ sectionKey }: { sectionKey: SectionKey }) {
       return;
     }
 
-    fetch("/api/posts")
-      .then((response) => (response.ok ? response.json() : Promise.reject()))
-      .then((payload) => {
-        if (Array.isArray(payload.posts)) setPosts(payload.posts);
-      })
-      .catch(() => setPosts([]));
+    function loadPosts() {
+      fetch("/api/posts", { cache: "no-store", credentials: "same-origin" })
+        .then((response) => (response.ok ? response.json() : Promise.reject()))
+        .then((payload) => {
+          if (Array.isArray(payload.posts)) setPosts(payload.posts);
+        })
+        .catch(() => setPosts([]));
+    }
+    loadPosts();
+    window.addEventListener("focus", loadPosts);
+    return () => window.removeEventListener("focus", loadPosts);
   }, [sectionKey]);
 
   useEffect(() => {
-    fetch(`/api/pages?key=${encodeURIComponent(sectionKey)}`, { cache: "no-store" })
-      .then((response) => (response.ok ? response.json() : Promise.reject()))
-      .then((payload) => {
-        if (payload.page) {
-          setPageCopy((current) => ({ ...current, ...payload.page }));
-          if (sectionKey === "about" && payload.page.about) {
-            setAboutProfile(payload.page.about);
-          }
-          if (payload.page.media && supportsPageMedia(sectionKey)) {
-            setPageMedia(payload.page.media);
-          }
-          if (sectionKey === "giving" && payload.page.content?.giving) {
-            setGiving(payload.page.content.giving);
-          }
-          if (sectionKey === "certificates" && payload.page.content?.certificates) {
-            setCertificates(payload.page.content.certificates);
-          }
-        }
+    function loadPage() {
+      fetch(`/api/pages?key=${encodeURIComponent(sectionKey)}`, {
+        cache: "no-store",
+        credentials: "same-origin",
       })
-      .catch(() => {
-        setPageCopy(section);
-        if (sectionKey === "about") setAboutProfile(cloneAboutProfile(defaultAboutProfile));
-        if (supportsPageMedia(sectionKey)) setPageMedia(defaultPageMedia[sectionKey]);
-        if (sectionKey === "giving") setGiving(defaultGivingContent);
-        if (sectionKey === "certificates") setCertificates(defaultCertificatesContent);
-      });
+        .then((response) => (response.ok ? response.json() : Promise.reject()))
+        .then((payload) => {
+          if (payload.page) {
+            setPageCopy((current) => ({ ...current, ...payload.page }));
+            if (sectionKey === "about" && payload.page.about) {
+              setAboutProfile(payload.page.about);
+            }
+            if (payload.page.media && supportsPageMedia(sectionKey)) {
+              setPageMedia(payload.page.media);
+            }
+            if (sectionKey === "giving" && payload.page.content?.giving) {
+              setGiving(payload.page.content.giving);
+            }
+            if (sectionKey === "certificates" && payload.page.content?.certificates) {
+              setCertificates(payload.page.content.certificates);
+            }
+          }
+        })
+        .catch(() => {
+          setPageCopy(section);
+          if (sectionKey === "about") setAboutProfile(cloneAboutProfile(defaultAboutProfile));
+          if (supportsPageMedia(sectionKey)) setPageMedia(defaultPageMedia[sectionKey]);
+          if (sectionKey === "giving") setGiving(defaultGivingContent);
+          if (sectionKey === "certificates") setCertificates(defaultCertificatesContent);
+        });
+    }
+    loadPage();
+    window.addEventListener("focus", loadPage);
+    return () => window.removeEventListener("focus", loadPage);
   }, [section, sectionKey]);
 
   return (

@@ -62,6 +62,9 @@ async function ensureMediaSchema(db: D1Database) {
 export async function GET(request: Request) {
   const user = await authenticateRequest(request);
   const db = runtime().DB;
+  if (!db) {
+    return Response.json({ error: "Database is not connected" }, { status: 503 });
+  }
   await ensureMediaSchema(db);
   const mediaId = Number(new URL(request.url).searchParams.get("id"));
 
@@ -78,7 +81,14 @@ export async function GET(request: Request) {
     if (!media) {
       return Response.json({ error: "Media not found" }, { status: 404 });
     }
-    const object = await runtime().MEDIA.get(String(media.object_key));
+    const storage = runtime().MEDIA;
+    if (!storage) {
+      return Response.json(
+        { error: "Media storage is not connected. Hero photos cannot be saved yet." },
+        { status: 503 },
+      );
+    }
+    const object = await storage.get(String(media.object_key));
     if (!object) {
       return Response.json({ error: "Media file not found" }, { status: 404 });
     }
@@ -134,15 +144,25 @@ export async function POST(request: Request) {
       return Response.json({ error: "The file contents do not match the selected file type" }, { status: 415 });
     }
 
+    const storage = runtime().MEDIA;
+    if (!storage) {
+      return Response.json(
+        { error: "Media storage is not connected. Set MySQL or use the local .data store." },
+        { status: 503 },
+      );
+    }
     const objectKey = `community/${crypto.randomUUID()}-${file.name
       .toLowerCase()
       .replace(/[^a-z0-9.]+/g, "-")}`;
-    await runtime().MEDIA.put(objectKey, bytes, {
+    await storage.put(objectKey, bytes, {
       httpMetadata: { contentType: file.type },
       customMetadata: { originalFilename: file.name },
     });
 
     const db = runtime().DB;
+    if (!db) {
+      return Response.json({ error: "Database is not connected" }, { status: 503 });
+    }
     await ensureMediaSchema(db);
     const record = await db
       .prepare(

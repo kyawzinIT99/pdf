@@ -9,6 +9,20 @@ export async function GET(request: Request) {
   }
 
   const db = authRuntime().DB;
+  if (!db) {
+    return Response.json(
+      {
+        error: "Database is not connected",
+        openInquiries: 0,
+        staleInquiries: 0,
+        closedThisMonth: 0,
+        activeSubscribers: 0,
+        newSubscribersThisMonth: 0,
+        upcomingEvents: 0,
+      },
+      { status: 503, headers: noStoreHeaders() },
+    );
+  }
 
   const now = new Date();
 

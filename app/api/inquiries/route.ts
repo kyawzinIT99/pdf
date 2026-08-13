@@ -62,6 +62,9 @@ export async function GET(request: Request) {
     return Response.json({ error: "Administrator access is required" }, { status: 403 });
   }
   const db = authRuntime().DB;
+  if (!db) {
+    return Response.json({ inquiries: [] }, { headers: noStoreHeaders() });
+  }
   await ensureSchema(db);
   const result = await db
     .prepare(`SELECT id, source, kind, name, email, organisation, location, message,
@@ -76,6 +79,12 @@ export async function POST(request: Request) {
   const rejected = mutationRejected(request);
   if (rejected) return rejected;
   const db = authRuntime().DB;
+  if (!db) {
+    return Response.json(
+      { error: "Database is not connected. Enquiry cannot be stored yet." },
+      { status: 503 },
+    );
+  }
   await ensureSchema(db);
   const key = await rateLimitKey("public-inquiry", request);
   const limit = await checkRateLimit(db, {
@@ -225,6 +234,9 @@ export async function PATCH(request: Request) {
     return Response.json({ error: "Valid inquiry update is required" }, { status: 400 });
   }
   const db = authRuntime().DB;
+  if (!db) {
+    return Response.json({ error: "Database is not connected" }, { status: 503 });
+  }
   await ensureSchema(db);
   const existing = await db
     .prepare(

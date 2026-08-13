@@ -21,7 +21,7 @@ export function SubscribersManager({ currentUser }: { currentUser: StaffUser }) 
   useEffect(() => {
     if (!canManage) return;
     let active = true;
-    fetch("/api/subscribers")
+    fetch("/api/subscribers", { credentials: "same-origin", cache: "no-store" })
       .then((response) => (response.ok ? response.json() : Promise.reject()))
       .then((payload) => {
         if (active) setSubscribers(payload.subscribers || []);
@@ -42,6 +42,7 @@ export function SubscribersManager({ currentUser }: { currentUser: StaffUser }) 
     try {
       const response = await fetch("/api/subscribers", {
         method: "PATCH",
+        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id, status }),
       });

@@ -101,7 +101,9 @@ async function maybeNotifyEventMail(
 export async function GET(request: Request) {
   try {
     const db = runtime().DB;
-    if (!db) throw new Error("D1 binding DB is unavailable");
+    if (!db) {
+      return Response.json({ events: [] }, { headers: noStoreHeaders() });
+    }
     await ensureSchema(db);
 
     const url = new URL(request.url);
@@ -127,9 +129,10 @@ export async function GET(request: Request) {
         "SELECT * FROM community_events WHERE status = 'published' ORDER BY event_date ASC, id ASC LIMIT 50"
       )
       .all();
-    return Response.json({
-      events: (result.results as Record<string, unknown>[]).map(normalize),
-    });
+    return Response.json(
+      { events: (result.results as Record<string, unknown>[]).map(normalize) },
+      { headers: noStoreHeaders() },
+    );
   } catch {
     return Response.json({ error: "Unable to load events" }, { status: 500 });
   }
@@ -169,6 +172,9 @@ export async function POST(request: Request) {
     const status = allowedStatuses.has(payload.status || "") ? payload.status! : "published";
 
     const db = runtime().DB;
+    if (!db) {
+      return Response.json({ error: "Database is not connected" }, { status: 503 });
+    }
     await ensureSchema(db);
 
     const row = await db
@@ -240,6 +246,9 @@ export async function PATCH(request: Request) {
     const status = allowedStatuses.has(payload.status || "") ? payload.status! : "published";
 
     const db = runtime().DB;
+    if (!db) {
+      return Response.json({ error: "Database is not connected" }, { status: 503 });
+    }
     await ensureSchema(db);
     const existing = await db
       .prepare("SELECT status FROM community_events WHERE id = ?")
@@ -300,6 +309,9 @@ export async function DELETE(request: Request) {
     }
 
     const db = runtime().DB;
+    if (!db) {
+      return Response.json({ error: "Database is not connected" }, { status: 503 });
+    }
     await ensureSchema(db);
     await db.prepare("DELETE FROM community_events WHERE id = ?").bind(id).run();
     await recordAudit(db, user.id, "event.delete", "community_event", id);

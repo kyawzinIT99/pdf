@@ -33,19 +33,24 @@ export function GalleryPage() {
   } | null>(null);
 
   useEffect(() => {
-    fetch("/api/posts")
-      .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((d) => {
-        if (Array.isArray(d.posts)) {
-          setPosts(
-            d.posts.filter(
-              (p: GalleryPost) =>
-                (p.gallery && p.gallery.length > 0) || p.mediaUrl,
-            ),
-          );
-        }
-      })
-      .catch(() => setPosts([]));
+    function loadPosts() {
+      fetch("/api/posts", { cache: "no-store", credentials: "same-origin" })
+        .then((r) => (r.ok ? r.json() : Promise.reject()))
+        .then((d) => {
+          if (Array.isArray(d.posts)) {
+            setPosts(
+              d.posts.filter(
+                (p: GalleryPost) =>
+                  (p.gallery && p.gallery.length > 0) || p.mediaUrl,
+              ),
+            );
+          }
+        })
+        .catch(() => setPosts([]));
+    }
+    loadPosts();
+    window.addEventListener("focus", loadPosts);
+    return () => window.removeEventListener("focus", loadPosts);
   }, []);
 
   const categories = ["all", ...new Set(posts.map((p) => p.category))];

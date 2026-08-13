@@ -72,21 +72,31 @@ export function PublicSite() {
   const pageCopy = copy[language];
 
   useEffect(() => {
-    fetch("/api/home")
-      .then((response) => (response.ok ? response.json() : Promise.reject()))
-      .then((payload) => {
-        if (payload.home) setHome(payload.home);
-      })
-      .catch(() => undefined);
+    function loadHome() {
+      fetch("/api/home", { cache: "no-store", credentials: "same-origin" })
+        .then((response) => (response.ok ? response.json() : Promise.reject()))
+        .then((payload) => {
+          if (payload.home) setHome(payload.home);
+        })
+        .catch(() => undefined);
+    }
+    loadHome();
+    window.addEventListener("focus", loadHome);
+    return () => window.removeEventListener("focus", loadHome);
   }, []);
 
   useEffect(() => {
-    fetch("/api/posts")
-      .then((response) => (response.ok ? response.json() : Promise.reject()))
-      .then((payload) => {
-        if (Array.isArray(payload.posts) && payload.posts.length) setPosts(payload.posts);
-      })
-      .catch(() => undefined);
+    function loadPosts() {
+      fetch("/api/posts", { cache: "no-store", credentials: "same-origin" })
+        .then((response) => (response.ok ? response.json() : Promise.reject()))
+        .then((payload) => {
+          if (Array.isArray(payload.posts) && payload.posts.length) setPosts(payload.posts);
+        })
+        .catch(() => undefined);
+    }
+    loadPosts();
+    window.addEventListener("focus", loadPosts);
+    return () => window.removeEventListener("focus", loadPosts);
   }, []);
 
   const localizedHome = language === "en"
@@ -144,8 +154,12 @@ export function PublicSite() {
         </div>
         <figure className="pdf-stage-media">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={localizedHome.heroImageUrl} alt={localizedHome.heroImageAlt} />
-          <figcaption>Published photograph · Admin Panel</figcaption>
+          <img
+            src={localizedHome.heroImageUrl}
+            alt={localizedHome.heroImageAlt}
+            key={localizedHome.heroImageUrl}
+          />
+          <figcaption>Photograph published from the Admin Panel</figcaption>
         </figure>
       </section>
 

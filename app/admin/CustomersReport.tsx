@@ -70,7 +70,10 @@ export function CustomersReport({ currentUser }: { currentUser: StaffUser }) {
     let active = true;
     const timer = window.setTimeout(() => {
       setLoading(true);
-      fetch(`/api/reports/customers${query ? `?${query}` : ""}`)
+      fetch(`/api/reports/customers${query ? `?${query}` : ""}`, {
+        credentials: "same-origin",
+        cache: "no-store",
+      })
         .then((response) => (response.ok ? response.json() : Promise.reject()))
         .then((payload) => {
           if (!active) return;

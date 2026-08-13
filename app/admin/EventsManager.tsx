@@ -42,7 +42,7 @@ export function EventsManager() {
   const [msg, setMsg] = useState("");
 
   const loadEvents = () => {
-    fetch("/api/events?scope=admin", { credentials: "include" })
+    fetch("/api/events?scope=admin", { credentials: "same-origin", cache: "no-store" })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((d) => {
         if (Array.isArray(d.events)) setEvents(d.events);
@@ -97,7 +97,7 @@ export function EventsManager() {
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
+        credentials: "same-origin",
         body: JSON.stringify(body),
       });
 
@@ -122,7 +122,7 @@ export function EventsManager() {
     try {
       const res = await fetch(`/api/events?id=${id}`, {
         method: "DELETE",
-        credentials: "include",
+        credentials: "same-origin",
       });
       if (!res.ok) throw new Error("Delete failed");
       loadEvents();

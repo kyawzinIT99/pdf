@@ -22,7 +22,11 @@ export async function GET(request: Request) {
   if (user.role !== "owner") {
     return Response.json({ error: "Owner access is required" }, { status: 403 });
   }
-  const result = await authRuntime().DB.prepare(selectUsers).all();
+  const db = authRuntime().DB;
+  if (!db) {
+    return Response.json({ error: "Database is not connected", users: [] }, { status: 503 });
+  }
+  const result = await db.prepare(selectUsers).all();
   return Response.json({
     users: (result.results as Record<string, unknown>[]).map(userFromRow),
   }, { headers: noStoreHeaders() });
@@ -64,6 +68,9 @@ export async function POST(request: Request) {
     }
 
     const db = authRuntime().DB;
+    if (!db) {
+      return Response.json({ error: "Database is not connected" }, { status: 503 });
+    }
     await ensureAuthSchema(db);
     const row = await db
       .prepare(`INSERT INTO staff_users
@@ -131,6 +138,9 @@ export async function PATCH(request: Request) {
     }
 
     const db = authRuntime().DB;
+    if (!db) {
+      return Response.json({ error: "Database is not connected" }, { status: 503 });
+    }
     await ensureAuthSchema(db);
     if (payload.password) {
       await db

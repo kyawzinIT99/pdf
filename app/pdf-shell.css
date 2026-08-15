@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Serif:ital,wght@0,500;0,600;1,500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Serif:ital,wght@0,500;0,600;1,500&family=Noto+Sans+Myanmar:wght@400;500;600;700&display=swap");
 
 .pdf-shell,
 .pdf-inner {
@@ -13,8 +13,20 @@
   --pdf-pad: clamp(18px, 4vw, 48px);
   background: var(--pdf-paper);
   color: var(--pdf-ink);
-  font-family: "IBM Plex Sans", Helvetica, Arial, sans-serif;
+  font-family: "IBM Plex Sans", "Noto Sans Myanmar", Helvetica, Arial, sans-serif;
   min-height: 100vh;
+}
+html[lang="my"] .pdf-shell,
+html[lang="my"] .pdf-inner {
+  font-family: "Noto Sans Myanmar", "IBM Plex Sans", Helvetica, Arial, sans-serif;
+}
+html[lang="my"] .pdf-wordmark small,
+html[lang="my"] .pdf-ticker,
+html[lang="my"] .pdf-kicker,
+html[lang="my"] .pdf-rail a {
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font-family: "Noto Sans Myanmar", "IBM Plex Sans", Helvetica, Arial, sans-serif;
 }
 .pdf-shell a,
 .pdf-inner a { color: inherit; text-decoration: none; }
@@ -77,7 +89,7 @@
   color: var(--pdf-mute);
 }
 .pdf-masthead-tools { display: flex; align-items: center; gap: 10px; }
-.pdf-lang { position: relative; }
+.pdf-lang { position: relative; font-family: "Noto Sans Myanmar", "IBM Plex Sans", Helvetica, Arial, sans-serif; }
 .pdf-lang > button,
 .pdf-burger {
   background: transparent;
@@ -91,7 +103,7 @@
   top: calc(100% + 4px);
   background: #fff;
   border: 1px solid var(--pdf-ink);
-  min-width: 140px;
+  min-width: 180px;
   display: grid;
   z-index: 5;
 }
@@ -698,4 +710,213 @@
   .pdf-ledger > div,
   .pdf-triad article { border-left: 0; border-top: 1px solid var(--pdf-ink); }
   .pdf-band { flex-direction: column; align-items: flex-start; }
+}
+
+html[data-lang="my"] .pdf-shell,
+.pdf-shell.is-my,
+.pdf-masthead.is-my {
+  font-family: "Noto Sans Myanmar", "IBM Plex Sans", Helvetica, Arial, sans-serif;
+}
+
+html[data-lang="my"] .pdf-stage-copy h1,
+html[data-lang="my"] .pdf-folio h2,
+html[data-lang="my"] .pdf-banner p,
+html[data-lang="my"] .pdf-index h2,
+html[data-lang="my"] .pdf-triad h2,
+html[data-lang="my"] .pdf-band h2,
+html[data-lang="my"] .pdf-inner .section-page-hero h1,
+html[data-lang="my"] .pdf-inner .section-about-copy h1,
+html[data-lang="my"] .pdf-inner .section-work-copy h1,
+html[data-lang="my"] .pdf-inner .v2-events-hero h1,
+html[data-lang="my"] .pdf-inner .v2-gallery-hero h1,
+html[data-lang="my"] .pdf-inner .section-statement p,
+.pdf-shell.is-my .pdf-stage-copy h1,
+.pdf-shell.is-my .pdf-folio h2,
+.pdf-shell.is-my .pdf-banner p,
+.pdf-shell.is-my .pdf-index h2,
+.pdf-shell.is-my .pdf-triad h2,
+.pdf-shell.is-my .pdf-band h2,
+.pdf-inner.is-my .section-page-hero h1,
+.pdf-inner.is-my .section-about-copy h1,
+.pdf-inner.is-my .section-work-copy h1,
+.pdf-inner.is-my .v2-events-hero h1,
+.pdf-inner.is-my .v2-gallery-hero h1,
+.pdf-inner.is-my .section-statement p {
+  font-family: "Noto Sans Myanmar", "IBM Plex Serif", sans-serif !important;
+  font-size: clamp(28px, 3.8vw, 44px) !important;
+  line-height: 1.5 !important;
+  letter-spacing: 0 !important;
+  font-weight: 600;
+}
+
+html[data-lang="my"] .pdf-dek,
+html[data-lang="my"] .pdf-inner .section-lead,
+html[data-lang="my"] .v2-events-subtitle,
+html[data-lang="my"] .v2-gallery-subtitle,
+.pdf-shell.is-my .pdf-dek,
+.pdf-inner.is-my .section-lead,
+.pdf-inner.is-my .v2-events-subtitle,
+.pdf-inner.is-my .v2-gallery-subtitle {
+  font-family: "Noto Sans Myanmar", "IBM Plex Sans", sans-serif !important;
+  font-size: clamp(17px, 1.8vw, 21px) !important;
+  line-height: 1.75 !important;
+}
+
+html[data-lang="my"] .pdf-kicker,
+html[data-lang="my"] .pdf-inner .eyebrow,
+html[data-lang="my"] .pdf-inner .section-about-kicker,
+html[data-lang="my"] .v2-section-eyebrow,
+.pdf-shell.is-my .pdf-kicker,
+.pdf-inner.is-my .eyebrow,
+.pdf-inner.is-my .section-about-kicker,
+.pdf-inner.is-my .v2-section-eyebrow {
+  font-family: "Noto Sans Myanmar", "IBM Plex Mono", sans-serif !important;
+  font-size: 15px !important;
+  letter-spacing: 0.02em !important;
+  text-transform: none !important;
+  line-height: 1.55;
+}
+
+html[data-lang="my"] .pdf-index strong,
+html[data-lang="my"] .pdf-index span,
+html[data-lang="my"] .pdf-triad h3,
+html[data-lang="my"] .pdf-triad p,
+html[data-lang="my"] .pdf-ledger span,
+html[data-lang="my"] .bcc-history h2,
+html[data-lang="my"] .bcc-ministries h2,
+html[data-lang="my"] .bcc-committee h2,
+html[data-lang="my"] .bcc-contact h2,
+html[data-lang="my"] .bcc-history-copy p,
+html[data-lang="my"] .section-feature-grid h2,
+html[data-lang="my"] .section-feature-grid p,
+.pdf-shell.is-my .pdf-index strong,
+.pdf-shell.is-my .pdf-index span,
+.pdf-inner.is-my .bcc-history h2,
+.pdf-inner.is-my .bcc-ministries h2,
+.pdf-inner.is-my .bcc-committee h2,
+.pdf-inner.is-my .bcc-contact h2,
+.pdf-inner.is-my .bcc-history-copy p,
+.pdf-inner.is-my .section-feature-grid h2,
+.pdf-inner.is-my .section-feature-grid p {
+  font-family: "Noto Sans Myanmar", "IBM Plex Sans", sans-serif !important;
+  letter-spacing: 0 !important;
+  line-height: 1.6 !important;
+}
+
+html[data-lang="my"] .bcc-history h2,
+html[data-lang="my"] .bcc-ministries h2,
+html[data-lang="my"] .bcc-committee h2,
+html[data-lang="my"] .bcc-contact h2,
+html[data-lang="my"] .section-feature-grid h2,
+.pdf-inner.is-my .bcc-history h2,
+.pdf-inner.is-my .bcc-ministries h2,
+.pdf-inner.is-my .bcc-committee h2,
+.pdf-inner.is-my .bcc-contact h2,
+.pdf-inner.is-my .section-feature-grid h2 {
+  font-size: clamp(22px, 2.6vw, 34px) !important;
+}
+
+html[data-lang="my"] .bcc-history-copy p,
+html[data-lang="my"] .section-feature-grid p,
+html[data-lang="my"] .pdf-index span,
+.pdf-inner.is-my .bcc-history-copy p,
+.pdf-inner.is-my .section-feature-grid p {
+  font-size: 17px !important;
+}
+
+html[data-lang="my"] .pdf-cta,
+html[data-lang="my"] .pdf-ghost,
+html[data-lang="my"] .pdf-rail a,
+html[data-lang="my"] .pdf-lang button,
+.pdf-shell.is-my .pdf-cta,
+.pdf-shell.is-my .pdf-ghost,
+.pdf-masthead.is-my .pdf-rail a,
+.pdf-masthead.is-my .pdf-lang button {
+  font-family: "Noto Sans Myanmar", "IBM Plex Sans", sans-serif;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.pdf-inner.section-stories .story-feed-boundary h2,
+.pdf-inner.section-stories .facebook-community-panel h2,
+.pdf-inner.section-stories .section-published-heading h2,
+.pdf-inner.section-stories .section-feature-grid h2 {
+  font-family: "IBM Plex Serif", "Noto Sans Myanmar", Georgia, serif;
+  font-size: clamp(22px, 2.5vw, 30px) !important;
+  line-height: 1.45 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  max-width: 36rem;
+}
+
+.pdf-inner.section-stories .section-statement p {
+  font-size: clamp(20px, 2.2vw, 28px) !important;
+  line-height: 1.5 !important;
+  letter-spacing: 0 !important;
+}
+
+.pdf-inner.section-stories .story-feed-boundary > div:last-child p,
+.pdf-inner.section-stories .facebook-community-action p,
+.pdf-inner.section-stories .section-feature-grid p,
+.pdf-inner.section-stories .section-published-grid p {
+  font-family: "IBM Plex Sans", "Noto Sans Myanmar", Helvetica, sans-serif;
+  font-size: 16px !important;
+  line-height: 1.7 !important;
+}
+
+.pdf-inner.section-stories .section-published-grid h3 {
+  font-family: "IBM Plex Serif", "Noto Sans Myanmar", Georgia, serif;
+  font-size: 20px !important;
+  line-height: 1.4 !important;
+  letter-spacing: 0 !important;
+}
+
+html[data-lang="my"] .pdf-inner.section-stories .story-feed-boundary h2,
+html[data-lang="my"] .pdf-inner.section-stories .facebook-community-panel h2,
+html[data-lang="my"] .pdf-inner.section-stories .section-published-heading h2,
+html[data-lang="my"] .pdf-inner.section-stories .section-feature-grid h2,
+html[data-lang="my"] .pdf-inner.section-stories .section-statement p,
+.pdf-inner.section-stories.is-my .story-feed-boundary h2,
+.pdf-inner.section-stories.is-my .facebook-community-panel h2,
+.pdf-inner.section-stories.is-my .section-published-heading h2,
+.pdf-inner.section-stories.is-my .section-feature-grid h2,
+.pdf-inner.section-stories.is-my .section-statement p {
+  font-family: "Noto Sans Myanmar", sans-serif !important;
+  font-size: clamp(20px, 2.3vw, 26px) !important;
+  line-height: 1.55 !important;
+  letter-spacing: 0 !important;
+  font-weight: 600;
+}
+
+html[data-lang="my"] .pdf-inner.section-stories .story-feed-boundary p,
+html[data-lang="my"] .pdf-inner.section-stories .facebook-community-action p,
+html[data-lang="my"] .pdf-inner.section-stories .section-feature-grid p,
+html[data-lang="my"] .pdf-inner.section-stories .section-published-copy p,
+html[data-lang="my"] .pdf-inner.section-stories .section-published-copy h3,
+.pdf-inner.section-stories.is-my .story-feed-boundary p,
+.pdf-inner.section-stories.is-my .facebook-community-action p,
+.pdf-inner.section-stories.is-my .section-feature-grid p,
+.pdf-inner.section-stories.is-my .section-published-copy p,
+.pdf-inner.section-stories.is-my .section-published-copy h3 {
+  font-family: "Noto Sans Myanmar", sans-serif !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+html[data-lang="my"] .pdf-inner.section-stories .story-feed-boundary p,
+html[data-lang="my"] .pdf-inner.section-stories .facebook-community-action p,
+html[data-lang="my"] .pdf-inner.section-stories .section-feature-grid p,
+html[data-lang="my"] .pdf-inner.section-stories .section-published-copy p,
+.pdf-inner.section-stories.is-my .story-feed-boundary p,
+.pdf-inner.section-stories.is-my .facebook-community-action p,
+.pdf-inner.section-stories.is-my .section-feature-grid p,
+.pdf-inner.section-stories.is-my .section-published-copy p {
+  font-size: 16px !important;
+  line-height: 1.8 !important;
+}
+
+html[data-lang="my"] .pdf-inner.section-stories .section-published-copy h3,
+.pdf-inner.section-stories.is-my .section-published-copy h3 {
+  font-size: 18px !important;
+  line-height: 1.5 !important;
 }

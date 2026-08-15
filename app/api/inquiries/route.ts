@@ -1,5 +1,6 @@
 import { authRuntime, authenticateRequest } from "../../lib/auth";
 import { notifyInquiryAutomation } from "../../lib/n8n";
+import { inquiryAutomationContext } from "../../lib/site-context";
 import {
   checkRateLimit,
   mutationRejected,
@@ -168,6 +169,10 @@ export async function POST(request: Request) {
     )
     .first();
   const reference = Number((row as Record<string, unknown>).id);
+  const context = inquiryAutomationContext(request, {
+    source,
+    page: "/get-involved",
+  });
   const notification = await notifyInquiryAutomation({
     event: "community.inquiry.created",
     reference: `CK-${reference}`,
@@ -182,6 +187,7 @@ export async function POST(request: Request) {
     followUpRequired,
     followUpBy,
     createdAt: new Date().toISOString(),
+    ...context,
   });
   if (notification === "failed") {
     await recordAudit(db, null, "inquiry.webhook-failed", "public_inquiry", reference, {
@@ -196,7 +202,13 @@ export async function POST(request: Request) {
     });
   }
   return Response.json(
-    { ok: true, reference },
+    {
+      ok: true,
+      reference,
+      message: followUpRequired
+        ? `Thank you, ${name.split(" ")[0]}. A greeting is on its way to ${email}. Your enquiry CK-${reference} remains in the staff follow-up queue.`
+        : `Thank you. Your message is recorded as CK-${reference}.`,
+    },
     { status: 201 },
   );
 }

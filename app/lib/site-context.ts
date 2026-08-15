@@ -4,6 +4,8 @@ export const siteIdentity = {
   tagline: "Civilian humanitarian community",
   description:
     "Verified stories, events and community notices for civilians in and from Myanmar.",
+  contactEmail: process.env.PUBLIC_CONTACT_EMAIL?.trim() || "pdfantimailtary@gmail.com",
+  facebookGroup: "https://web.facebook.com/groups/115394412003293",
 };
 
 export function publicOrigin(request?: Request) {
@@ -38,6 +40,8 @@ export function siteLinks(origin: string) {
     events: `${origin}/events`,
     gallery: `${origin}/gallery`,
     getInvolved: `${origin}/get-involved`,
+    facebookGroup: siteIdentity.facebookGroup,
+    contactEmail: siteIdentity.contactEmail,
   };
 }
 
@@ -50,10 +54,35 @@ export function subscribeAutomationContext(request: Request, extra: Record<strin
     tagline: siteIdentity.tagline,
     origin,
     links,
+    contactEmail: siteIdentity.contactEmail,
     welcome: {
       subject: `Welcome to ${siteIdentity.shortName} community updates`,
       intro: `You asked ${siteIdentity.name} to email approved event notices.`,
       footer: siteIdentity.tagline,
+      contactEmail: siteIdentity.contactEmail,
+    },
+    ...extra,
+  };
+}
+
+export function inquiryAutomationContext(request: Request, extra: Record<string, unknown> = {}) {
+  const origin = publicOrigin(request);
+  const links = siteLinks(origin);
+  return {
+    organisation: siteIdentity.name,
+    organisationShort: siteIdentity.shortName,
+    tagline: siteIdentity.tagline,
+    origin,
+    links,
+    contactEmail: siteIdentity.contactEmail,
+    sendVisitorGreeting: true,
+    welcome: {
+      subject: `We received your enquiry — ${siteIdentity.shortName}`,
+      intro: `Thank you for writing to ${siteIdentity.name}. Staff have your message and will follow up.`,
+      body:
+        "This is a greeting only. Your enquiry stays in the administrator follow-up queue until staff reply.",
+      footer: siteIdentity.tagline,
+      contactEmail: siteIdentity.contactEmail,
     },
     ...extra,
   };

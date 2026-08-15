@@ -7,69 +7,17 @@ import {
   defaultHomePage,
   type HomePageSettings,
 } from "../lib/home";
+import { homeUi } from "../lib/i18n";
 import { LogoMark } from "./LogoMark";
-import {
-  PublicHeader,
-  type PublicLanguage,
-} from "./PublicHeader";
+import { PublicHeader } from "./PublicHeader";
 import { MailSubscribe } from "./MailSubscribe";
-
-const copy = {
-  en: {
-    eyebrow: "Civilian record · Myanmar",
-    title: "Stand with people. Rebuild with care.",
-    intro:
-      "PDF is a community relief platform for civilians in and from Myanmar. Verified stories, transparent giving, events and practical pathways.",
-    helpTitle: "How can you take part?",
-    routes: [
-      "Follow verified updates",
-      "Support relief work",
-      "Join an event",
-      "Volunteer or partner",
-    ],
-  },
-  my: {
-    eyebrow: "အရပ်သား မှတ်တမ်း · မြန်မာ",
-    title: "လူထုနှင့်အတူ ရပ်တည်သည်။ ဂရုစိုက်မှုဖြင့် ပြန်လည်တည်ဆောက်သည်။",
-    intro:
-      "PDF သည် မြန်မာပြည်သူများအတွက် အရပ်သား လူသားချင်းစာနာမှု ပလက်ဖောင်းဖြစ်သည်။",
-    helpTitle: "မည်သို့ ပါဝင်နိုင်သနည်း။",
-    routes: [
-      "အတည်ပြုထားသော သတင်းများ",
-      "ကူညီထောက်ပံ့ရန်",
-      "ပွဲတက်ရန်",
-      "စေတနာ့ဝန်ထမ်း",
-    ],
-  },
-  kar: {
-    eyebrow: "Civilian record · Myanmar",
-    title: "Stand with people. Rebuild with care.",
-    intro:
-      "PDF publishes verified community relief updates for civilians affected by the coup.",
-    helpTitle: "How can you take part?",
-    routes: [
-      "Follow verified updates",
-      "Support relief work",
-      "Join an event",
-      "Volunteer or partner",
-    ],
-  },
-} satisfies Record<
-  PublicLanguage,
-  {
-    eyebrow: string;
-    title: string;
-    intro: string;
-    helpTitle: string;
-    routes: [string, string, string, string];
-  }
->;
+import { usePublicLanguage } from "./usePublicLanguage";
 
 export function PublicSite() {
-  const [language, setLanguage] = useState<PublicLanguage>("en");
+  const { language, onLanguageChange } = usePublicLanguage();
   const [home, setHome] = useState<HomePageSettings>(defaultHomePage);
   const [posts, setPosts] = useState(seedPosts);
-  const pageCopy = copy[language];
+  const pageCopy = homeUi[language];
 
   useEffect(() => {
     function loadHome() {
@@ -99,19 +47,23 @@ export function PublicSite() {
     return () => window.removeEventListener("focus", loadPosts);
   }, []);
 
-  const localizedHome = language === "en"
-    ? home
-    : {
-        ...home,
-        eyebrow: pageCopy.eyebrow,
-        title: pageCopy.title,
-        intro: pageCopy.intro,
-        helpTitle: pageCopy.helpTitle,
-        pathways: home.pathways.map((pathway, index) => ({
-          ...pathway,
-          title: pageCopy.routes[index],
-        })) as HomePageSettings["pathways"],
-      };
+  const localizedHome =
+    language === "en"
+      ? home
+      : {
+          ...home,
+          announcement: pageCopy.announcement,
+          eyebrow: pageCopy.eyebrow,
+          title: pageCopy.title,
+          intro: pageCopy.intro,
+          helpTitle: pageCopy.helpTitle,
+          helpIntro: pageCopy.helpIntro,
+          pathways: home.pathways.map((pathway, index) => ({
+            ...pathway,
+            title: pageCopy.routes[index],
+            description: pageCopy.routeNotes[index],
+          })) as HomePageSettings["pathways"],
+        };
 
   const featuredPosts = posts.slice(0, 3);
   const storyImages = [
@@ -123,16 +75,16 @@ export function PublicSite() {
   const rest = featuredPosts.slice(1);
 
   return (
-    <main className="pdf-shell">
+    <main className={`pdf-shell${language === "my" ? " is-my" : ""}`}>
       <p className="pdf-ticker">
-        <span>{home.announcement}</span>
-        <a href="#folio">Latest stories</a>
+        <span>{localizedHome.announcement}</span>
+        <a href="#folio">{pageCopy.latestStories}</a>
       </p>
 
       <PublicHeader
         activeHref="/"
         language={language}
-        onLanguageChange={setLanguage}
+        onLanguageChange={onLanguageChange}
       />
 
       <section className="pdf-stage">
@@ -142,15 +94,13 @@ export function PublicSite() {
           <p className="pdf-dek">{localizedHome.intro}</p>
           <div className="pdf-actions">
             <a className="pdf-cta" href="#index">
-              Choose a path
+              {pageCopy.choosePath}
             </a>
             <Link className="pdf-ghost" href="/get-involved">
-              Get involved
+              {pageCopy.getInvolved}
             </Link>
           </div>
-          <p className="pdf-note">
-            Independent civilian humanitarian organisation. Not a government or armed group.
-          </p>
+          <p className="pdf-note">{pageCopy.note}</p>
         </div>
         <figure className="pdf-stage-media">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -159,21 +109,21 @@ export function PublicSite() {
             alt={localizedHome.heroImageAlt}
             key={localizedHome.heroImageUrl}
           />
-          <figcaption>Photograph published from the Admin Panel</figcaption>
+          <figcaption>{pageCopy.photoCaption}</figcaption>
         </figure>
       </section>
 
       <section className="pdf-ledger" aria-label="Site facts">
-        <div><b>04+</b><span>Years of civilian solidarity</span></div>
-        <div><b>08</b><span>Pages editors can update</span></div>
-        <div><b>07</b><span>n8n workflows connected</span></div>
-        <div><b>03</b><span>Languages on this site</span></div>
+        <div><b>04+</b><span>{pageCopy.years}</span></div>
+        <div><b>08</b><span>{pageCopy.pages}</span></div>
+        <div><b>07</b><span>{pageCopy.workflows}</span></div>
+        <div><b>03</b><span>{pageCopy.languages}</span></div>
       </section>
 
       <section className="pdf-folio" id="folio">
         <header>
-          <p className="pdf-kicker">Dispatch</p>
-          <h2>Stories from the community</h2>
+          <p className="pdf-kicker">{pageCopy.dispatch}</p>
+          <h2>{pageCopy.storiesHeading}</h2>
         </header>
         <div className="pdf-folio-grid">
           {lead && (
@@ -187,7 +137,7 @@ export function PublicSite() {
                 <time>{lead.date}</time>
                 <h3>{lead.title}</h3>
                 <p>{lead.excerpt}</p>
-                <Link href="/stories">Continue in News &amp; stories</Link>
+                <Link href="/stories">{pageCopy.continueStories}</Link>
               </div>
             </article>
           )}
@@ -199,7 +149,7 @@ export function PublicSite() {
                 <div>
                   <time>{post.date}</time>
                   <h3>{post.title}</h3>
-                  <Link href="/stories">Read</Link>
+                  <Link href="/stories">{pageCopy.read}</Link>
                 </div>
               </article>
             ))}
@@ -208,12 +158,12 @@ export function PublicSite() {
       </section>
 
       <section className="pdf-banner" aria-label="Mission">
-        <p>People first. No rumour. Care that can be shown.</p>
+        <p>{pageCopy.banner}</p>
       </section>
 
       <section className="pdf-index" id="index">
         <header>
-          <p className="pdf-kicker">Index</p>
+          <p className="pdf-kicker">{pageCopy.index}</p>
           <h2>{localizedHome.helpTitle}</h2>
           <p>{localizedHome.helpIntro}</p>
         </header>
@@ -236,35 +186,35 @@ export function PublicSite() {
 
       <section className="pdf-triad" id="work">
         <header>
-          <p className="pdf-kicker">Mandate</p>
-          <h2>Relief. Record. Connection.</h2>
+          <p className="pdf-kicker">{pageCopy.mandate}</p>
+          <h2>{pageCopy.triadTitle}</h2>
         </header>
         <div>
           <article>
-            <h3>Civilian relief</h3>
-            <p>Practical help shaped with trusted community partners.</p>
-            <Link href="/our-work">Our work</Link>
+            <h3>{pageCopy.triad[0].title}</h3>
+            <p>{pageCopy.triad[0].body}</p>
+            <Link href="/our-work">{pageCopy.triad[0].link}</Link>
           </article>
           <article>
-            <h3>Public record</h3>
-            <p>Stories and figures appear only after administrator review.</p>
-            <Link href="/stories">News &amp; stories</Link>
+            <h3>{pageCopy.triad[1].title}</h3>
+            <p>{pageCopy.triad[1].body}</p>
+            <Link href="/stories">{pageCopy.triad[1].link}</Link>
           </article>
           <article>
-            <h3>Gathering</h3>
-            <p>Events and galleries keep people connected across distance.</p>
-            <Link href="/events">Events</Link>
+            <h3>{pageCopy.triad[2].title}</h3>
+            <p>{pageCopy.triad[2].body}</p>
+            <Link href="/events">{pageCopy.triad[2].link}</Link>
           </article>
         </div>
       </section>
 
       <section className="pdf-band">
         <div>
-          <p className="pdf-kicker">Take part</p>
-          <h2>Bring time, language and local knowledge.</h2>
+          <p className="pdf-kicker">{pageCopy.takePart}</p>
+          <h2>{pageCopy.takePartTitle}</h2>
         </div>
         <Link className="pdf-cta" href="/get-involved">
-          Get involved
+          {pageCopy.getInvolved}
         </Link>
       </section>
 
@@ -275,20 +225,20 @@ export function PublicSite() {
           <LogoMark />
           <div>
             <strong>PDF Myanmar Relief</strong>
-            <span>Civilian humanitarian community</span>
+            <span>{pageCopy.footerTag}</span>
           </div>
         </div>
         <nav>
-          <Link href="/about">About</Link>
-          <Link href="/our-work">Our work</Link>
-          <Link href="/giving">Giving</Link>
-          <Link href="/stories">News</Link>
-          <Link href="/events">Events</Link>
-          <Link href="/gallery">Gallery</Link>
-          <Link href="/approach">Approach</Link>
-          <Link href="/get-involved">Contact</Link>
+          <Link href="/about">{language === "my" ? "အကြောင်း" : "About"}</Link>
+          <Link href="/our-work">{language === "my" ? "လုပ်ငန်း" : "Our work"}</Link>
+          <Link href="/giving">{language === "my" ? "လှူဒါန်းမှု" : "Giving"}</Link>
+          <Link href="/stories">{language === "my" ? "သတင်း" : "News"}</Link>
+          <Link href="/events">{language === "my" ? "ပွဲများ" : "Events"}</Link>
+          <Link href="/gallery">{language === "my" ? "ဓာတ်ပုံများ" : "Gallery"}</Link>
+          <Link href="/approach">{language === "my" ? "ချဉ်းကပ်ပုံ" : "Approach"}</Link>
+          <Link href="/get-involved">{language === "my" ? "ဆက်သွယ်ရန်" : "Contact"}</Link>
         </nav>
-        <p>Independent civilian organisation · Admin-published · Accountable</p>
+        <p>{pageCopy.footerNote}</p>
       </footer>
     </main>
   );

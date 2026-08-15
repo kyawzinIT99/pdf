@@ -2,16 +2,17 @@
 
 import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
+import { navLabel, publicLanguages, type PublicLanguage } from "../lib/i18n";
 import { publicNavigation } from "../lib/sections";
 import { LogoMark } from "./LogoMark";
 
-export const publicLanguages = [
-  { code: "en", label: "English" },
-  { code: "my", label: "မြန်မာ" },
-  { code: "kar", label: "Karen" },
-] as const;
+export { publicLanguages, type PublicLanguage };
 
-export type PublicLanguage = (typeof publicLanguages)[number]["code"];
+function languageButtonLabel(option: (typeof publicLanguages)[number]) {
+  return "latin" in option && option.latin
+    ? `${option.label} · ${option.latin}`
+    : option.label;
+}
 
 export function PublicHeader({
   activeHref,
@@ -65,7 +66,7 @@ export function PublicHeader({
   }
 
   return (
-    <header className="pdf-masthead">
+    <header className={`pdf-masthead${language === "my" ? " is-my" : ""}`}>
       <div className="pdf-flag" aria-hidden="true">
         <i />
         <i />
@@ -76,7 +77,7 @@ export function PublicHeader({
           <LogoMark />
           <span>
             <b>PDF</b>
-            <small>Myanmar civilian relief</small>
+            <small>{language === "my" ? "မြန်မာ အရပ်သား ကယ်ဆယ်ရေး" : "Myanmar civilian relief"}</small>
           </span>
         </Link>
         <div className="pdf-masthead-tools">
@@ -88,7 +89,7 @@ export function PublicHeader({
               aria-haspopup="menu"
               onClick={() => setLanguageOpen((value) => !value)}
             >
-              {currentLanguage.label}
+              {languageButtonLabel(currentLanguage)}
             </button>
             {languageOpen && (
               <div id={languageMenuId} role="menu">
@@ -103,7 +104,7 @@ export function PublicHeader({
                       setLanguageOpen(false);
                     }}
                   >
-                    {option.label}
+                    {languageButtonLabel(option)}
                   </button>
                 ))}
               </div>
@@ -111,7 +112,7 @@ export function PublicHeader({
           </div>
           {cta && (
             <Link className="pdf-cta" href={cta.href}>
-              {cta.label}
+              {navLabel(language, cta.href, cta.label)}
             </Link>
           )}
           <button
@@ -122,7 +123,7 @@ export function PublicHeader({
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             onClick={() => setMobileOpen((value) => !value)}
           >
-            Menu
+            {language === "my" ? "မီနူး" : "Menu"}
           </button>
         </div>
       </div>
@@ -136,7 +137,7 @@ export function PublicHeader({
               className={active ? "is-on" : undefined}
               aria-current={active ? "page" : undefined}
             >
-              {item.label}
+              {navLabel(language, item.href, item.label)}
             </Link>
           );
         })}
@@ -150,7 +151,7 @@ export function PublicHeader({
             onClick={() => setMobileOpen(false)}
           />
           <nav className="pdf-drawer" id={mobileMenuId} aria-label="All pages">
-            <p className="pdf-drawer-kicker">Pages</p>
+            <p className="pdf-drawer-kicker">{language === "my" ? "စာမျက်နှာများ" : "Pages"}</p>
             {links.map((item) => (
                 <Link
                   key={item.href}
@@ -158,12 +159,12 @@ export function PublicHeader({
                   className={isActive(item.href) ? "is-on" : undefined}
                   onClick={() => setMobileOpen(false)}
                 >
-                  {item.label}
+                  {navLabel(language, item.href, item.label)}
                 </Link>
               ))}
             {cta && (
               <Link className="pdf-cta" href={cta.href} onClick={() => setMobileOpen(false)}>
-                {cta.label}
+                {navLabel(language, cta.href, cta.label)}
               </Link>
             )}
           </nav>

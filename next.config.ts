@@ -21,6 +21,8 @@ const brandRewrites = [
   destination: `/_next/static/brand/${name}`,
 }));
 
+const isDev = process.env.NODE_ENV !== "production";
+
 const nextConfig: NextConfig = {
   serverExternalPackages: ["mysql2"],
   productionBrowserSourceMaps: false,
@@ -47,8 +49,12 @@ const nextConfig: NextConfig = {
               "img-src 'self' data: blob:",
               "font-src 'self' data: https://fonts.gstatic.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-              "script-src 'self' 'unsafe-inline'",
-              "connect-src 'self'",
+              isDev
+                ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
+                : "script-src 'self' 'unsafe-inline'",
+              isDev
+                ? "connect-src 'self' ws: wss:"
+                : "connect-src 'self'",
             ].join("; "),
           },
         ],

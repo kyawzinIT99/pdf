@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { PublicHeader, type PublicLanguage } from "./PublicHeader";
+import { PublicHeader } from "./PublicHeader";
 import { MailSubscribe } from "./MailSubscribe";
+import { usePublicLanguage } from "./usePublicLanguage";
+import { eventsUi } from "../lib/i18n";
 
 type CommunityEvent = {
   id: number;
@@ -22,14 +24,6 @@ const categoryColors: Record<CommunityEvent["category"], string> = {
   service: "#7ec8d9",
   youth: "#1f5747",
   learning: "#0a2540",
-};
-
-const categoryLabels: Record<CommunityEvent["category"], string> = {
-  mass: "Gathering",
-  cultural: "Culture",
-  service: "Relief",
-  youth: "Youth",
-  learning: "Learning",
 };
 
 const seedEvents: CommunityEvent[] = [
@@ -57,7 +51,8 @@ function formatDate(dateStr: string) {
 
 
 export function EventsPage() {
-  const [language, setLanguage] = useState<PublicLanguage>("en");
+  const { language, onLanguageChange } = usePublicLanguage();
+  const ui = language === "my" ? eventsUi.my : eventsUi.en;
   const [filter, setFilter] = useState<string>("all");
   const [showPast, setShowPast] = useState(false);
   const [communityEvents, setCommunityEvents] = useState<CommunityEvent[]>(seedEvents);
@@ -101,24 +96,23 @@ export function EventsPage() {
       ? displayEvents
       : displayEvents.filter((e) => e.category === filter);
 
-  const allCategories = Object.entries(categoryLabels);
+  const allCategories = Object.entries(ui.categories);
 
   return (
-    <main className="pdf-shell pdf-inner">
+    <main className={`pdf-shell pdf-inner${language === "my" ? " is-my" : ""}`}>
       <PublicHeader
         activeHref="/events"
         language={language}
-        onLanguageChange={setLanguage}
+        onLanguageChange={onLanguageChange}
       />
 
       {/* ── Hero ─────────────────────────────────────────────── */}
       <section className="v2-events-hero">
         <div className="v2-events-hero-content">
-          <p className="v2-section-eyebrow">Community calendar</p>
-          <h1>Upcoming Events</h1>
+          <p className="v2-section-eyebrow">{ui.eyebrow}</p>
+          <h1>{ui.title}</h1>
           <p className="v2-events-subtitle">
-            Gatherings, relief briefings, youth circles and learning sessions —
-            published from the Admin Panel.
+            {ui.subtitle}
           </p>
         </div>
       </section>
@@ -130,13 +124,13 @@ export function EventsPage() {
             className={!showPast ? "active" : ""}
             onClick={() => setShowPast(false)}
           >
-            Upcoming
+            {ui.upcoming}
           </button>
           <button
             className={showPast ? "active" : ""}
             onClick={() => setShowPast(true)}
           >
-            Past Events
+            {ui.past}
           </button>
         </div>
         <div className="v2-events-filters">
@@ -145,7 +139,7 @@ export function EventsPage() {
               }`}
             onClick={() => setFilter("all")}
           >
-            All
+            {ui.all}
           </button>
           {allCategories.map(([key, label]) => (
             <button
@@ -179,8 +173,8 @@ export function EventsPage() {
           <div className="v2-events-empty">
             <p>
               {showPast
-                ? "No past events to show."
-                : "No upcoming events scheduled. Check back soon!"}
+                ? ui.emptyPast
+                : ui.emptyUpcoming}
             </p>
           </div>
         ) : (
@@ -212,10 +206,10 @@ export function EventsPage() {
                               : "white",
                         }}
                       >
-                        {categoryLabels[event.category]}
+                        {ui.categories[event.category]}
                       </span>
                       {event.recurring && (
-                        <span className="v2-event-recurring">↻ Recurring</span>
+                        <span className="v2-event-recurring">↻ {ui.recurring}</span>
                       )}
                     </div>
                     <h3>{event.title}</h3>
@@ -264,14 +258,13 @@ export function EventsPage() {
       <section className="v2-events-cta">
         <div className="v2-events-cta-inner">
           <div>
-            <h2>Want to organise an event?</h2>
+            <h2>{ui.ctaTitle}</h2>
             <p>
-              Community leaders can submit events through the admin panel. Reach
-              out to get started.
+              {ui.ctaBody}
             </p>
           </div>
           <Link href="/get-involved" className="pdf-cta">
-            Contact Us
+            {ui.contact}
           </Link>
         </div>
       </section>

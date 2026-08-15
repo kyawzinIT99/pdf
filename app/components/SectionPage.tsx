@@ -21,16 +21,18 @@ import {
   type PageMedia,
 } from "../lib/page-media";
 import { sectionDefinitions, type SectionKey } from "../lib/sections";
+import { aboutUi, localizeSection } from "../lib/i18n";
 import { LogoMark } from "./LogoMark";
-import { PublicHeader, type PublicLanguage } from "./PublicHeader";
+import { PublicHeader } from "./PublicHeader";
+import { usePublicLanguage } from "./usePublicLanguage";
 import { CommunityContactForm } from "./CommunityContactForm";
 
-function CommitteeCard({ member }: { member: CommitteeMember }) {
+function CommitteeCard({ member, leadership }: { member: CommitteeMember; leadership: string }) {
   return (
     <article className="committee-card">
       <span>{member.role}</span>
       <h3>{member.name}</h3>
-      <small>Community leadership</small>
+      <small>{leadership}</small>
     </article>
   );
 }
@@ -38,14 +40,16 @@ function CommitteeCard({ member }: { member: CommitteeMember }) {
 export function SectionPage({ sectionKey }: { sectionKey: SectionKey }) {
   const section = sectionDefinitions[sectionKey];
   const [posts, setPosts] = useState<CommunityPost[]>([]);
-  const [pageCopy, setPageCopy] = useState(section);
+  const [rawPageCopy, setPageCopy] = useState(section);
   const [aboutProfile, setAboutProfile] = useState<AboutProfile>(() => cloneAboutProfile());
   const [pageMedia, setPageMedia] = useState<PageMedia | undefined>(() =>
     supportsPageMedia(sectionKey) ? defaultPageMedia[sectionKey] : undefined,
   );
   const [giving, setGiving] = useState<GivingContent>(defaultGivingContent);
   const [certificates, setCertificates] = useState<CertificatesContent>(defaultCertificatesContent);
-  const [language, setLanguage] = useState<PublicLanguage>("en");
+  const { language, onLanguageChange } = usePublicLanguage();
+  const ui = language === "my" ? aboutUi.my : aboutUi.en;
+  const pageCopy = localizeSection(language, sectionKey, rawPageCopy);
   const visibleFeatures = sectionKey === "our-work"
     ? pageCopy.features.map((feature) =>
         feature.number === "03" && feature.title === "Community care"
@@ -113,11 +117,11 @@ export function SectionPage({ sectionKey }: { sectionKey: SectionKey }) {
   }, [section, sectionKey]);
 
   return (
-    <main className={`pdf-shell pdf-inner section-page section-${sectionKey}`}>
+    <main className={`pdf-shell pdf-inner section-page section-${sectionKey}${language === "my" ? " is-my" : ""}`}>
       <PublicHeader
         activeHref={`/${sectionKey}`}
         language={language}
-        onLanguageChange={setLanguage}
+        onLanguageChange={onLanguageChange}
       />
 
       <section className={`section-page-hero${sectionKey === "about" ? " has-feature-photo" : ""}${sectionKey === "our-work" ? " has-work-photo" : ""}`}>
@@ -135,7 +139,7 @@ export function SectionPage({ sectionKey }: { sectionKey: SectionKey }) {
                 fetchPriority="high"
                 decoding="async"
               />
-              <figcaption>Community photo · PDF Myanmar Relief</figcaption>
+              <figcaption>{ui.photoCaption}</figcaption>
             </figure>
             <div className="section-about-copy">
               <p className="section-about-kicker">
@@ -161,7 +165,7 @@ export function SectionPage({ sectionKey }: { sectionKey: SectionKey }) {
                 loading="eager"
                 fetchPriority="high"
               />
-              <figcaption>Civilian care, culture and community in public view</figcaption>
+              <figcaption>{ui.workCaption}</figcaption>
             </figure>
           </>
         ) : (
@@ -172,7 +176,7 @@ export function SectionPage({ sectionKey }: { sectionKey: SectionKey }) {
               <p className="section-lead">{pageCopy.summary}</p>
             </div>
             <div className="section-emblem" aria-hidden="true">
-              <span>{section.label}</span>
+              <span>{pageCopy.label}</span>
               <i />
               <b>PDF</b>
             </div>
@@ -187,8 +191,8 @@ export function SectionPage({ sectionKey }: { sectionKey: SectionKey }) {
       {sectionKey === "giving" && giving.showAmounts ? (
         <section className="giving-totals" aria-labelledby="giving-totals-title">
           <div className="giving-totals-intro">
-            <p className="eyebrow">Published figures</p>
-            <h2 id="giving-totals-title">Donation amount and yearly total</h2>
+            <p className="eyebrow">{ui.givingEyebrow}</p>
+            <h2 id="giving-totals-title">{ui.givingTitle}</h2>
             <p>{giving.note}</p>
             <small>{giving.updatedLabel}</small>
           </div>
@@ -203,10 +207,10 @@ export function SectionPage({ sectionKey }: { sectionKey: SectionKey }) {
             </article>
           </div>
           <div className="giving-howto">
-            <h3>How to give</h3>
+            <h3>{ui.howToGive}</h3>
             <p>{giving.howToGive}</p>
             <Link className="button button-dark" href="/get-involved#community-contact">
-              Contact through Get Involved
+              {ui.givingCta}
             </Link>
           </div>
         </section>
@@ -215,8 +219,8 @@ export function SectionPage({ sectionKey }: { sectionKey: SectionKey }) {
       {sectionKey === "certificates" ? (
         <section className="certificates-gallery" aria-labelledby="certificates-gallery-title">
           <div className="certificates-gallery-intro">
-            <p className="eyebrow">Public record</p>
-            <h2 id="certificates-gallery-title">Certificates</h2>
+            <p className="eyebrow">{ui.certEyebrow}</p>
+            <h2 id="certificates-gallery-title">{ui.certTitle}</h2>
             <p>{certificates.galleryIntro}</p>
           </div>
           {visibleCertificates.length ? (
@@ -243,8 +247,8 @@ export function SectionPage({ sectionKey }: { sectionKey: SectionKey }) {
             </div>
           ) : (
             <div className="section-empty">
-              <span>COMING INTO VIEW</span>
-              <p>Approved certificates will appear here after administrators publish them.</p>
+              <span>{ui.coming}</span>
+              <p>{ui.certEmpty}</p>
             </div>
           )}
         </section>
@@ -253,17 +257,14 @@ export function SectionPage({ sectionKey }: { sectionKey: SectionKey }) {
       {sectionKey === "stories" && (
         <section className="story-feed-boundary" aria-labelledby="story-feed-boundary-title">
           <div>
-            <p className="eyebrow">A clear content boundary</p>
-            <h2 id="story-feed-boundary-title">This is the changing news and stories feed.</h2>
+            <p className="eyebrow">{ui.storiesBoundaryEyebrow}</p>
+            <h2 id="story-feed-boundary-title">{ui.storiesBoundaryTitle}</h2>
           </div>
           <div>
             <p>
-              Recent photographs, announcements and recaps appear here after administrator review.
-              The permanent explanation of the organisation&apos;s service remains on Our Work.
-              Any fundraising appeal must state its date, authorised beneficiary, collection method,
-              closing date and reporting commitment. Payment details appear only after organisation approval.
+              {ui.storiesBoundaryBody}
             </p>
-            <Link href="/our-work">Read about Our Work <span aria-hidden="true">→</span></Link>
+            <Link href="/our-work">{ui.readWork} <span aria-hidden="true">→</span></Link>
           </div>
         </section>
       )}
@@ -271,18 +272,17 @@ export function SectionPage({ sectionKey }: { sectionKey: SectionKey }) {
       {sectionKey === "stories" && (
         <section className="facebook-community-panel" aria-labelledby="facebook-community-title">
           <div>
-            <p className="eyebrow">Also on this site</p>
-            <h2 id="facebook-community-title">Events and photo albums stay with their stories.</h2>
+            <p className="eyebrow">{ui.alsoOnSite}</p>
+            <h2 id="facebook-community-title">{ui.eventsAlbumsTitle}</h2>
           </div>
           <div className="facebook-community-action">
             <p>
-              Administrators publish events and gallery albums from the same editorial workflow.
-              What you see here is what the Admin Panel approved.
+              {ui.eventsAlbumsBody}
             </p>
             <Link href="/events">
-              Open the events calendar <span aria-hidden="true">→</span>
+              {ui.openCalendar} <span aria-hidden="true">→</span>
             </Link>
-            <small>Gallery photos are attached to published posts only.</small>
+            <small>{ui.galleryNote}</small>
           </div>
         </section>
       )}
@@ -310,17 +310,16 @@ export function SectionPage({ sectionKey }: { sectionKey: SectionKey }) {
       {sectionKey === "our-work" && (
         <section className="work-updates-route" aria-labelledby="work-updates-title">
           <div>
-            <p className="eyebrow">Looking for current activity?</p>
-            <h2 id="work-updates-title">Our Work explains what we do. News &amp; Stories shows what is happening now.</h2>
+            <p className="eyebrow">{ui.lookingActivity}</p>
+            <h2 id="work-updates-title">{ui.workVsNews}</h2>
           </div>
           <div>
             <p>
-              Recent photographs, announcements and community updates belong in one clear feed,
-              separate from this permanent overview of faith, culture and community care.
+              {ui.workVsNewsBody}
             </p>
-            <Link className="button button-dark" href="/stories">View News &amp; Stories</Link>
+            <Link className="button button-dark" href="/stories">{ui.viewNews}</Link>
             <a href="https://web.facebook.com/groups/115394412003293" target="_blank" rel="noreferrer">
-              Visit the official Facebook group <span aria-hidden="true">↗</span>
+              {ui.facebook} <span aria-hidden="true">↗</span>
             </a>
           </div>
         </section>
@@ -331,31 +330,31 @@ export function SectionPage({ sectionKey }: { sectionKey: SectionKey }) {
           <section className="bcc-history" aria-labelledby="bcc-history-title">
             <div className="bcc-history-intro">
               <div>
-                <p className="eyebrow">{aboutProfile.historyEyebrow}</p>
-                <h2 id="bcc-history-title">{aboutProfile.historyTitle}</h2>
+                <p className="eyebrow">{language === "my" ? ui.historyEyebrow : aboutProfile.historyEyebrow}</p>
+                <h2 id="bcc-history-title">{language === "my" ? ui.historyTitle : aboutProfile.historyTitle}</h2>
               </div>
               <div className="bcc-history-copy">
-                {aboutProfile.historyBody.split(/\n\n+/).map((paragraph, index) => (
+                {(language === "my" ? ui.historyBody : aboutProfile.historyBody).split(/\n\n+/).map((paragraph, index) => (
                   <p key={index}>{paragraph}</p>
                 ))}
               </div>
             </div>
 
             <div className="bcc-facts" aria-label="Organisation facts">
-              <article><span>Formed</span><strong>{aboutProfile.formed}</strong></article>
-              <article><span>Incorporated</span><strong>{aboutProfile.incorporated}</strong></article>
-              <article><span>Registered name</span><strong>{aboutProfile.legalName}</strong></article>
-              <article><span>ABN</span><strong>{aboutProfile.abn}</strong></article>
+              <article><span>{ui.formed}</span><strong>{aboutProfile.formed}</strong></article>
+              <article><span>{ui.incorporated}</span><strong>{aboutProfile.incorporated}</strong></article>
+              <article><span>{ui.registered}</span><strong>{aboutProfile.legalName}</strong></article>
+              <article><span>{ui.abn}</span><strong>{aboutProfile.abn}</strong></article>
             </div>
           </section>
 
           <section className="bcc-ministries" aria-labelledby="bcc-ministries-title">
             <div className="bcc-section-heading">
-              <p className="eyebrow">{aboutProfile.focusEyebrow}</p>
-              <h2 id="bcc-ministries-title">{aboutProfile.focusTitle}</h2>
+                <p className="eyebrow">{language === "my" ? ui.focusEyebrow : aboutProfile.focusEyebrow}</p>
+                <h2 id="bcc-ministries-title">{language === "my" ? ui.focusTitle : aboutProfile.focusTitle}</h2>
             </div>
             <div className="bcc-ministry-grid">
-              {aboutProfile.focuses.map((focus, index) => (
+              {(language === "my" ? ui.focuses : aboutProfile.focuses).map((focus, index) => (
                 <article key={`${index}-${focus.title}`}>
                   <span>{String(index + 1).padStart(2, "0")}</span>
                   <h3>{focus.title}</h3>
@@ -368,36 +367,34 @@ export function SectionPage({ sectionKey }: { sectionKey: SectionKey }) {
           <section className="bcc-committee" id="committee" aria-labelledby="bcc-committee-title">
             <div className="bcc-section-heading committee-heading">
               <div>
-                <p className="eyebrow">{aboutProfile.committeeEyebrow}</p>
-                <h2 id="bcc-committee-title">{aboutProfile.committeeTitle}</h2>
+                <p className="eyebrow">{ui.committeeEyebrow}</p>
+                <h2 id="bcc-committee-title">{ui.committeeTitle}</h2>
               </div>
               <p>
-                Meet the people entrusted with serving the community. For privacy,
-                personal contact details are not published. Updated {aboutProfile.committeeUpdated}.
+                {ui.committeeNote} {ui.updated} {aboutProfile.committeeUpdated}.
               </p>
             </div>
 
             <div className="committee-grid">
               {aboutProfile.committee.map((member, index) => (
-                <CommitteeCard member={member} key={`${index}-${member.role}`} />
+                <CommitteeCard member={member} leadership={ui.leadership} key={`${index}-${member.role}`} />
               ))}
             </div>
           </section>
 
           <section className="bcc-contact" aria-labelledby="bcc-contact-title">
             <div>
-              <p className="eyebrow">Contact the community</p>
-              <h2 id="bcc-contact-title">One private starting point.</h2>
+              <p className="eyebrow">{ui.contactEyebrow}</p>
+              <h2 id="bcc-contact-title">{ui.contactTitle}</h2>
             </div>
             <div className="bcc-contact-action">
               <p>
-                Send your enquiry through the secure community form. An authorised
-                administrator can direct it to the appropriate committee member.
+                {ui.contactBody}
               </p>
               <Link className="button button-light" href="/get-involved#community-contact">
-                Contact the community
+                {ui.contactCta}
               </Link>
-              <small>Messages are recorded privately for responsible follow-up.</small>
+              <small>{ui.contactSmall}</small>
             </div>
           </section>
 
@@ -410,8 +407,8 @@ export function SectionPage({ sectionKey }: { sectionKey: SectionKey }) {
       {sectionKey === "stories" && (
         <section className="section-published">
           <div className="section-published-heading">
-            <p className="eyebrow">Recent approved updates</p>
-            <h2>News &amp; Stories feed</h2>
+            <p className="eyebrow">{ui.recentUpdates}</p>
+            <h2>{ui.newsFeed}</h2>
           </div>
           {posts.length ? (
           <div className="section-published-grid">
@@ -469,8 +466,8 @@ export function SectionPage({ sectionKey }: { sectionKey: SectionKey }) {
           </div>
           ) : (
             <div className="section-empty">
-              <span>COMING INTO VIEW</span>
-              <p>Approved public updates for this section will appear here.</p>
+              <span>{ui.coming}</span>
+              <p>{ui.emptyUpdates}</p>
             </div>
           )}
         </section>
@@ -483,7 +480,7 @@ export function SectionPage({ sectionKey }: { sectionKey: SectionKey }) {
           <LogoMark />
           <span>PDF MYANMAR RELIEF</span>
         </Link>
-        <p>Civilian humanitarian action with a clear public purpose.</p>
+        <p>{ui.footer}</p>
       </footer>
     </main>
   );

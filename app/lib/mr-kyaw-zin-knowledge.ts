@@ -12,9 +12,9 @@ CONFIRMED CURRENT IMPLEMENTATION
 - Admin uses password sign-in, expiring HttpOnly sessions, and Owner / Administrator / Editor roles.
 - Owner manages staff accounts in Team Access.
 - Staff create posts, attach up to 4 photos as one story album, choose page placement, save draft, send for review, then authorised publish.
-- Mail subscribe on Home/Events stores subscribers in Admin. New/reactivated subscribers alert staff via n8n and also receive a welcome email (website, Facebook group, Events/About links, info@bccwac.com).
-- Publishing an upcoming event emails active subscribers via n8n Event Mail and notifies the BCC WA Charity Community Telegram group.
-- Inquiry alerts and subscribe alerts go to the Telegram staff group and bccwacharity@gmail.com when configured.
+- Mail subscribe on Home/Events stores subscribers in Admin. New/reactivated subscribers alert staff via n8n and also receive a welcome email (website, Facebook group, Events/About links, pdfantimailtary@gmail.com).
+- Publishing an upcoming event emails active subscribers via n8n Event Mail and notifies the PDF staff Telegram chat.
+- Inquiry alerts and subscribe alerts go to the Telegram staff group and pdfantimailtary@gmail.com when configured.
 - Mr. Kyaw Zin (AI, Networking, and Cloud) is Admin-only. WhatsApp support: +66 82 567 4570.
 - GitHub: kyawzinIT99/BCC-website. Production Hostinger deployment has not yet been completed.
 - n8n runs on the existing Hostinger VPS (inquiry, publish, subscribe, event-mail workflows).
@@ -65,7 +65,7 @@ const faqBank: FaqEntry[] = [
   {
     keys: /(get involved|enquiry|inquir|contact form|follow-?up queue)/i,
     answer:
-      "Confirmed: public contact is Get Involved only. Submissions enter Admin → Enquiries (Community follow-up queue) and alert the BCC WA Charity Community Telegram group plus bccwacharity@gmail.com when CRM alerts are enabled. The Ask a question floating widget has been removed.",
+      "Confirmed: public contact is Get Involved only. Submissions enter Admin → Enquiries (Community follow-up queue) and alert staff Telegram plus pdfantimailtary@gmail.com when CRM alerts are enabled. The Ask a question floating widget has been removed.",
   },
   {
     keys: /(ask a question|quick question|floating|widget)/i,
@@ -95,7 +95,7 @@ const faqBank: FaqEntry[] = [
   {
     keys: /(telegram|staff alert|bcc wa charity)/i,
     answer:
-      "Confirmed: staff alerts go to Telegram group BCC WA Charity Community via @Bccwacharity_bot, plus optional staff email. Mr. Kyaw Zin cannot change Telegram settings from chat.",
+      "Confirmed: PDF staff alerts go to the PDF Telegram credential and pdfantimailtary@gmail.com when CRM alerts are enabled. BCC mailboxes and BCC n8n workflows are not used.",
   },
   {
     keys: /(n8n|automation|webhook)/i,

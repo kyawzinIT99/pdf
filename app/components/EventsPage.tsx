@@ -7,7 +7,7 @@ import { MailSubscribe } from "./MailSubscribe";
 import { usePublicLanguage } from "./usePublicLanguage";
 import { eventsUi } from "../lib/i18n";
 import { LiveStreamPlayer } from "./LiveStreamPlayer";
-import type { LivePlatform } from "../lib/live-stream";
+import { isWatchableLivePlatform, PUBLIC_LIVE_STREAM_ENABLED, type LivePlatform } from "../lib/live-stream";
 
 type CommunityEvent = {
   id: number;
@@ -51,6 +51,21 @@ function formatDate(dateStr: string) {
     month: MONTHS_SHORT[d.getMonth()],
     weekday: WEEKDAYS[d.getDay()],
   };
+}
+
+function livePlatformName(platform?: LivePlatform) {
+  if (platform === "tiktok") return "TikTok";
+  if (platform === "youtube") return "YouTube";
+  return "Facebook";
+}
+
+function watchLabelFor(
+  platform: LivePlatform | undefined,
+  ui: (typeof eventsUi)["en"],
+) {
+  if (platform === "tiktok") return ui.watchTiktok;
+  if (platform === "youtube") return ui.watchYouTube;
+  return ui.watchFacebook;
 }
 
 
@@ -102,9 +117,12 @@ export function EventsPage() {
       : displayEvents.filter((e) => e.category === filter);
 
   const allCategories = Object.entries(ui.categories);
-  const liveNow = communityEvents.filter(
-    (event) => event.liveOn && event.liveUrl && (event.livePlatform === "facebook" || event.livePlatform === "tiktok"),
-  );
+  const liveNow = PUBLIC_LIVE_STREAM_ENABLED
+    ? communityEvents.filter(
+        (event) =>
+          event.liveOn && event.liveUrl && isWatchableLivePlatform(event.livePlatform || "none"),
+      )
+    : [];
 
   return (
     <main className={`pdf-shell pdf-inner${language === "my" ? " is-my" : ""}`}>
@@ -129,16 +147,14 @@ export function EventsPage() {
         <section className="pdf-live-stage" aria-label={ui.liveNow}>
           {liveNow.map((event) => (
             <article key={`live-${event.id}`}>
-              <p className="pdf-kicker">{ui.liveNow} · {event.livePlatform === "tiktok" ? "TikTok" : "Facebook"}</p>
+              <p className="pdf-kicker">{ui.liveNow} · {livePlatformName(event.livePlatform)}</p>
               <h2>{event.title}</h2>
               <p>{ui.liveNote}</p>
               <LiveStreamPlayer
                 platform={event.livePlatform || "none"}
                 liveUrl={event.liveUrl || ""}
                 title={event.title}
-                watchLabel={
-                  event.livePlatform === "tiktok" ? ui.watchTiktok : ui.watchFacebook
-                }
+                watchLabel={watchLabelFor(event.livePlatform, ui)}
               />
             </article>
           ))}
@@ -239,20 +255,18 @@ export function EventsPage() {
                       {event.recurring && (
                         <span className="v2-event-recurring">↻ {ui.recurring}</span>
                       )}
-                      {event.liveOn && event.liveUrl ? (
+                      {PUBLIC_LIVE_STREAM_ENABLED && event.liveOn && event.liveUrl ? (
                         <span className="v2-event-recurring">{ui.liveNow}</span>
                       ) : null}
                     </div>
                     <h3>{event.title}</h3>
                     <p>{event.description}</p>
-                    {event.liveOn && event.liveUrl ? (
+                    {PUBLIC_LIVE_STREAM_ENABLED && event.liveOn && event.liveUrl ? (
                       <LiveStreamPlayer
                         platform={event.livePlatform || "none"}
                         liveUrl={event.liveUrl}
                         title={event.title}
-                        watchLabel={
-                          event.livePlatform === "tiktok" ? ui.watchTiktok : ui.watchFacebook
-                        }
+                        watchLabel={watchLabelFor(event.livePlatform, ui)}
                       />
                     ) : null}
                     <div className="v2-event-details">

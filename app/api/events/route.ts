@@ -1,7 +1,13 @@
 import { applicationRuntime } from "../../lib/hostinger-runtime";
 import { authenticateRequest } from "../../lib/auth";
 import { notifyEventMailAutomation } from "../../lib/n8n";
-import { detectLivePlatform, sanitizeLiveUrl, type LivePlatform } from "../../lib/live-stream";
+import {
+  detectLivePlatform,
+  isWatchableLivePlatform,
+  PUBLIC_LIVE_STREAM_ENABLED,
+  sanitizeLiveUrl,
+  type LivePlatform,
+} from "../../lib/live-stream";
 import { mutationRejected, noStoreHeaders, recordAudit } from "../../lib/security";
 import { publicOrigin, siteIdentity } from "../../lib/site-context";
 
@@ -48,8 +54,7 @@ function normalize(row: Record<string, unknown>) {
   const liveUrl = sanitizeLiveUrl(String(row.live_url || ""));
   const detected = detectLivePlatform(liveUrl);
   const stored = String(row.live_platform || "none");
-  const livePlatform: LivePlatform =
-    stored === "facebook" || stored === "tiktok" ? stored : detected;
+  const livePlatform: LivePlatform = isWatchableLivePlatform(stored) ? stored : detected;
   return {
     id: row.id,
     title: row.title,
@@ -65,6 +70,12 @@ function normalize(row: Record<string, unknown>) {
     liveUrl,
     liveOn: Boolean(row.live_on) && Boolean(liveUrl),
   };
+}
+
+function resolveLivePlatform(requested: string | undefined, liveUrl: string): LivePlatform {
+  const value = requested || "";
+  if (liveUrl && isWatchableLivePlatform(value)) return value;
+  return detectLivePlatform(liveUrl);
 }
 
 async function loadActiveSubscriberEmails(db: D1Database) {
@@ -105,7 +116,11 @@ async function maybeNotifyEventMail(
 ) {
   if (event.status !== "published") return;
   const firstPublish = !previous || previous.status !== "published";
-  const wentLive = Boolean(event.liveOn && (!previous?.liveOn || previous.liveUrl !== event.liveUrl));
+  const wentLive = Boolean(
+    PUBLIC_LIVE_STREAM_ENABLED &&
+      event.liveOn &&
+      (!previous?.liveOn || previous.liveUrl !== event.liveUrl),
+  );
   if (!firstPublish && !wentLive) return;
   if (!wentLive && !isUpcomingDate(String(event.date))) return;
 
@@ -156,16 +171,18 @@ export async function GET(request: Request) {
       );
     }
 
-    // Public: only published events
+    // Public: only published events. Live fields stay admin-only until the public player is enabled.
     const result = await db
       .prepare(
         "SELECT * FROM community_events WHERE status = 'published' ORDER BY event_date ASC, id ASC LIMIT 50"
       )
       .all();
-    return Response.json(
-      { events: (result.results as Record<string, unknown>[]).map(normalize) },
-      { headers: noStoreHeaders() },
-    );
+    const events = (result.results as Record<string, unknown>[]).map((row) => {
+      const event = normalize(row);
+      if (PUBLIC_LIVE_STREAM_ENABLED) return event;
+      return { ...event, livePlatform: "none" as const, liveUrl: "", liveOn: false };
+    });
+    return Response.json({ events }, { headers: noStoreHeaders() });
   } catch {
     return Response.json({ error: "Unable to load events" }, { status: 500 });
   }
@@ -207,10 +224,7 @@ export async function POST(request: Request) {
     const allowedStatuses = new Set(["draft", "published"]);
     const status = allowedStatuses.has(payload.status || "") ? payload.status! : "published";
     const liveUrl = sanitizeLiveUrl(payload.liveUrl || "");
-    const livePlatform =
-      liveUrl && (payload.livePlatform === "tiktok" || payload.livePlatform === "facebook")
-        ? payload.livePlatform
-        : detectLivePlatform(liveUrl);
+    const livePlatform = resolveLivePlatform(payload.livePlatform, liveUrl);
     const liveOn = Boolean(payload.liveOn) && Boolean(liveUrl);
 
     const db = runtime().DB;
@@ -294,10 +308,7 @@ export async function PATCH(request: Request) {
     const allowedStatuses = new Set(["draft", "published"]);
     const status = allowedStatuses.has(payload.status || "") ? payload.status! : "published";
     const liveUrl = sanitizeLiveUrl(payload.liveUrl || "");
-    const livePlatform =
-      liveUrl && (payload.livePlatform === "tiktok" || payload.livePlatform === "facebook")
-        ? payload.livePlatform
-        : detectLivePlatform(liveUrl);
+    const livePlatform = resolveLivePlatform(payload.livePlatform, liveUrl);
     const liveOn = Boolean(payload.liveOn) && Boolean(liveUrl);
 
     const db = runtime().DB;

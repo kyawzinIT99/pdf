@@ -1,6 +1,12 @@
 "use client";
 
-import { facebookEmbedSrc, tiktokEmbedSrc, type LivePlatform } from "../lib/live-stream";
+import {
+  facebookEmbedSrc,
+  isWatchableLivePlatform,
+  tiktokEmbedSrc,
+  youtubeEmbedSrc,
+  type LivePlatform,
+} from "../lib/live-stream";
 
 export function LiveStreamPlayer({
   platform,
@@ -13,9 +19,13 @@ export function LiveStreamPlayer({
   title: string;
   watchLabel: string;
 }) {
-  if (!liveUrl || (platform !== "facebook" && platform !== "tiktok")) return null;
+  if (!liveUrl || !isWatchableLivePlatform(platform)) return null;
   const embed =
-    platform === "facebook" ? facebookEmbedSrc(liveUrl) : tiktokEmbedSrc(liveUrl);
+    platform === "facebook"
+      ? facebookEmbedSrc(liveUrl)
+      : platform === "tiktok"
+        ? tiktokEmbedSrc(liveUrl)
+        : youtubeEmbedSrc(liveUrl);
 
   return (
     <div className="pdf-live-player">

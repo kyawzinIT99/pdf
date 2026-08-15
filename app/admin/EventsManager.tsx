@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import type { LivePlatform } from "../lib/live-stream";
 
 type EventItem = {
   id: number;
@@ -12,7 +13,7 @@ type EventItem = {
   description: string;
   recurring: boolean;
   status: string;
-  livePlatform: "none" | "facebook" | "tiktok";
+  livePlatform: LivePlatform;
   liveUrl: string;
   liveOn: boolean;
 };
@@ -38,6 +39,28 @@ const emptyEvent = (): Omit<EventItem, "id"> => ({
   liveUrl: "",
   liveOn: false,
 });
+
+function livePasteCopy(platform: LivePlatform) {
+  if (platform === "youtube") {
+    return {
+      label: "2. Paste YouTube live link here",
+      placeholder: "https://www.youtube.com/watch?v=…  or  https://youtu.be/…  ← paste YouTube copy link",
+      help: "On YouTube: open the live video → Share → Copy link → paste in this box.",
+    };
+  }
+  if (platform === "tiktok") {
+    return {
+      label: "2. Paste TikTok live link here",
+      placeholder: "https://www.tiktok.com/@account/live  ← paste TikTok copy link",
+      help: "On TikTok: open the live → Share → Copy link → paste in this box.",
+    };
+  }
+  return {
+    label: "2. Paste Facebook live link here",
+    placeholder: "https://www.facebook.com/yourpage/videos/123…  ← paste Facebook copy link",
+    help: "On Facebook: open the live video → Share → Copy link → paste in this box.",
+  };
+}
 
 export function EventsManager() {
   const [events, setEvents] = useState<EventItem[]>([]);
@@ -151,9 +174,9 @@ export function EventsManager() {
         <div>
           <h2>Community Events</h2>
           <p>
-            Create events for the public page. For a live stream: start on Facebook or TikTok,
-            copy the live link, paste it here, tick Live now, then Publish. Subscribers are emailed
-            and the same stream shows on /events.
+            Create events for the public page. Live stream fields are ready here: start on Facebook,
+            TikTok or YouTube, copy the live link, paste it, and save. The public Events player is
+            not switched on yet — the link is stored in Admin only.
           </p>
         </div>
         <button
@@ -173,7 +196,7 @@ export function EventsManager() {
           <h3>{creating ? "Create Event" : `Edit: ${editing!.title}`}</h3>
 
           <div className="events-live-box">
-            <p className="events-live-box-title">Live stream (Facebook or TikTok)</p>
+            <p className="events-live-box-title">Live stream (Facebook, TikTok or YouTube)</p>
             <label>
               1. Select where you went live
               <select
@@ -189,13 +212,12 @@ export function EventsManager() {
                 <option value="none">No live stream</option>
                 <option value="facebook">Facebook Live</option>
                 <option value="tiktok">TikTok Live</option>
+                <option value="youtube">YouTube Live</option>
               </select>
             </label>
             {form.livePlatform !== "none" && (
               <label className="events-live-paste">
-                {form.livePlatform === "facebook"
-                  ? "2. Paste Facebook live link here"
-                  : "2. Paste TikTok live link here"}
+                {livePasteCopy(form.livePlatform).label}
                 <input
                   type="text"
                   inputMode="url"
@@ -209,17 +231,9 @@ export function EventsManager() {
                       liveOn: true,
                     })
                   }
-                  placeholder={
-                    form.livePlatform === "facebook"
-                      ? "https://www.facebook.com/yourpage/videos/123…  ← paste Facebook copy link"
-                      : "https://www.tiktok.com/@account/live  ← paste TikTok copy link"
-                  }
+                  placeholder={livePasteCopy(form.livePlatform).placeholder}
                 />
-                <small>
-                  {form.livePlatform === "facebook"
-                    ? "On Facebook: open the live video → Share → Copy link → paste in this box."
-                    : "On TikTok: open the live → Share → Copy link → paste in this box."}
-                </small>
+                <small>{livePasteCopy(form.livePlatform).help}</small>
               </label>
             )}
             {form.livePlatform !== "none" && (
@@ -229,7 +243,7 @@ export function EventsManager() {
                   checked={form.liveOn}
                   onChange={(e) => setForm({ ...form, liveOn: e.target.checked })}
                 />
-                Live now — show on Events page and email subscribers
+                Live now — stored in Admin (public Events player is not on yet)
               </label>
             )}
           </div>

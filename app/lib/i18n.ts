@@ -637,7 +637,8 @@ export const eventsUi = {
     liveNow: "Live now",
     watchFacebook: "Watch on Facebook (same stream)",
     watchTiktok: "Watch on TikTok (same stream)",
-    liveNote: "The stream plays here and on Facebook or TikTok at the same time. Giving is not taken on this page.",
+    watchYouTube: "Watch on YouTube (same stream)",
+    liveNote: "The stream plays here and on Facebook, TikTok or YouTube at the same time. Giving is not taken on this page.",
     categories: {
       mass: "Gathering",
       cultural: "Culture",
@@ -662,7 +663,8 @@ export const eventsUi = {
     liveNow: "ယခု တိုက်ရိုက်",
     watchFacebook: "ဖေ့စ်ဘုတ်တွင် ကြည့်ရန် (တူညီသော စတရီးမ်)",
     watchTiktok: "တစ်တော့တွင် ကြည့်ရန် (တူညီသော စတရီးမ်)",
-    liveNote: "ဤစတရီးမ်ကို ဤဆိုက်နှင့် ဖေ့စ်ဘုတ် သို့မဟုတ် တစ်တော့တွင် တစ်ပြိုင်နက် ကြည့်နိုင်သည်။ ဤစာမျက်နှာတွင် လှူဒါန်းမှု မကောက်ပါ။",
+    watchYouTube: "ယူကျုတွင် ကြည့်ရန် (တူညီသော စတရီးမ်)",
+    liveNote: "ဤစတရီးမ်ကို ဤဆိုက်နှင့် ဖေ့စ်ဘုတ်၊ တစ်တော့ သို့မဟုတ် ယူကျုတွင် တစ်ပြိုင်နက် ကြည့်နိုင်သည်။ ဤစာမျက်နှာတွင် လှူဒါန်းမှု မကောက်ပါ။",
     categories: {
       mass: "စုဝေးပွဲ",
       cultural: "ယဉ်ကျေးမှု",

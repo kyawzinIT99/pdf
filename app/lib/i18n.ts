@@ -80,6 +80,7 @@ export type HomeUiCopy = {
   triad: [{ title: string; body: string; link: string }, { title: string; body: string; link: string }, { title: string; body: string; link: string }];
   takePart: string;
   takePartTitle: string;
+  telegramTraining: string;
   footerTag: string;
   footerNote: string;
 };
@@ -124,6 +125,7 @@ export const homeUi: Record<PublicLanguage, HomeUiCopy> = {
     ],
     takePart: "Take part",
     takePartTitle: "Bring time, language and local knowledge.",
+    telegramTraining: "Open Telegram training",
     footerTag: "Civilian humanitarian community",
     footerNote: "Independent civilian organisation · Admin-published · Accountable",
   },
@@ -166,6 +168,7 @@ export const homeUi: Record<PublicLanguage, HomeUiCopy> = {
     ],
     takePart: "ပါဝင်ရန်",
     takePartTitle: "အချိန်၊ ဘာသာစကားနှင့် ဒေသဆိုင်ရာ အသိပညာ ယူလာပါ။",
+    telegramTraining: "တယ်လီဂရမ် သင်တန်း ဖွင့်ရန်",
     footerTag: "အရပ်သား လူသားချင်းစာနာမှု အသိုင်းအဝိုင်း",
     footerNote: "လွတ်လပ်သော အရပ်သား အဖွဲ့ · စီမံခန့်ခွဲသူ ထုတ်ပြန် · တာဝန်ယူမှု",
   },
@@ -208,6 +211,7 @@ export const homeUi: Record<PublicLanguage, HomeUiCopy> = {
     ],
     takePart: "Take part",
     takePartTitle: "Bring time, language and local knowledge.",
+    telegramTraining: "Open Telegram training",
     footerTag: "Civilian humanitarian community",
     footerNote: "Independent civilian organisation · Admin-published · Accountable",
   },
@@ -553,6 +557,7 @@ export const aboutUi = {
       "Recent photographs, announcements and community updates belong in one clear feed, separate from this permanent overview of culture and community care.",
     viewNews: "View News & Stories",
     facebook: "Visit the official Facebook group",
+    telegramTraining: "Open Telegram training",
     recentUpdates: "Recent approved updates",
     newsFeed: "News & Stories feed",
     emptyUpdates: "Approved public updates for this section will appear here.",
@@ -613,6 +618,7 @@ export const aboutUi = {
       "လတ်တလော ဓာတ်ပုံ၊ ကြေညာချက်နှင့် လူထု အပ်ဒိတ်များသည် ယဉ်ကျေးမှုနှင့် လူထု စောင့်ရှောက်မှု၏ အမြဲတမ်း အကျဉ်းချုပ်နှင့် သီးခြား ရှင်းလင်းသော ဖိဒ်တွင် ရှိသည်။",
     viewNews: "သတင်းများ ကြည့်ရန်",
     facebook: "တရားဝင် ဖေ့စ်ဘုတ် အဖွဲ့သို့ သွားရန်",
+    telegramTraining: "တယ်လီဂရမ် သင်တန်း ဖွင့်ရန်",
     recentUpdates: "လတ်တလော အတည်ပြု အပ်ဒိတ်များ",
     newsFeed: "သတင်းနှင့် ဇာတ်လမ်း ဖိဒ်",
     emptyUpdates: "ဤအပိုင်းအတွက် အတည်ပြု အများပြည်သူ အပ်ဒိတ်များ ဤနေရာတွင် ပေါ်မည်။",

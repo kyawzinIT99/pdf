@@ -2,6 +2,7 @@ import { homeSettingsSchemaSql } from "../../../db/schema";
 import { authRuntime, authenticateRequest } from "../../lib/auth";
 import {
   defaultHomePage,
+  normalizeTelegramTraining,
   type HomePageSettings,
   type HomePathway,
 } from "../../lib/home";
@@ -12,6 +13,7 @@ async function ensureSchema(db: D1Database) {
   for (const statement of [
     "ALTER TABLE site_home_settings ADD COLUMN hero_image_url TEXT NOT NULL DEFAULT '/pdf-hero-civilian.png'",
     "ALTER TABLE site_home_settings ADD COLUMN hero_image_alt TEXT NOT NULL DEFAULT 'Civilians packing relief supplies together in a community hall.'",
+    "ALTER TABLE site_home_settings ADD COLUMN telegram_json TEXT NOT NULL DEFAULT '{}'",
   ]) {
     try {
       await db.prepare(statement).run();
@@ -65,7 +67,16 @@ function rowToSettings(row: Record<string, unknown>): HomePageSettings {
     helpTitle: String(row.help_title),
     helpIntro: String(row.help_intro),
     pathways,
+    telegramTraining: normalizeTelegramTraining(parseJson(row.telegram_json)),
   };
+}
+
+function parseJson(value: unknown) {
+  try {
+    return JSON.parse(String(value || "{}"));
+  } catch {
+    return {};
+  }
 }
 
 function validSettings(settings: HomePageSettings) {
@@ -89,7 +100,11 @@ function validSettings(settings: HomePageSettings) {
         pathway.description.length <= 360 &&
         pathway.href.length <= 500 &&
         isSafeHref(pathway.href),
-    )
+    ) &&
+    home.telegramTraining.title.length > 0 &&
+    home.telegramTraining.description.length > 0 &&
+    home.telegramTraining.cta.length > 0 &&
+    isSafeHref(home.telegramTraining.url)
   );
 }
 
@@ -101,7 +116,7 @@ export async function GET() {
   await ensureSchema(db);
   const row = await db
     .prepare(`SELECT announcement, eyebrow, title, intro, hero_image_url, hero_image_alt, help_title, help_intro,
-      pathways_json FROM site_home_settings WHERE id = 1`)
+      pathways_json, telegram_json FROM site_home_settings WHERE id = 1`)
     .first();
   return Response.json(
     { home: row ? rowToSettings(row as Record<string, unknown>) : defaultHomePage },
@@ -130,6 +145,7 @@ export async function PATCH(request: Request) {
     helpTitle: payload.helpTitle?.trim() || "",
     helpIntro: payload.helpIntro?.trim() || "",
     pathways: payload.pathways.map(normalizePathway) as HomePageSettings["pathways"],
+    telegramTraining: normalizeTelegramTraining(payload.telegramTraining),
   };
   if (
     !home.announcement ||
@@ -155,8 +171,8 @@ export async function PATCH(request: Request) {
   await db
     .prepare(`INSERT INTO site_home_settings
       (id, announcement, eyebrow, title, intro, hero_image_url, hero_image_alt,
-       help_title, help_intro, pathways_json, updated_by, updated_at)
-      VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+       help_title, help_intro, pathways_json, telegram_json, updated_by, updated_at)
+      VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
       ON CONFLICT(id) DO UPDATE SET
         announcement = excluded.announcement,
         eyebrow = excluded.eyebrow,
@@ -167,6 +183,7 @@ export async function PATCH(request: Request) {
         help_title = excluded.help_title,
         help_intro = excluded.help_intro,
         pathways_json = excluded.pathways_json,
+        telegram_json = excluded.telegram_json,
         updated_by = excluded.updated_by,
         updated_at = CURRENT_TIMESTAMP`)
     .bind(
@@ -179,6 +196,7 @@ export async function PATCH(request: Request) {
       home.helpTitle,
       home.helpIntro,
       JSON.stringify(home.pathways),
+      JSON.stringify(home.telegramTraining),
       user.id,
     )
     .run();

@@ -6,6 +6,7 @@ export const siteIdentity = {
     "Verified stories, events and community notices for civilians in and from Myanmar.",
   contactEmail: process.env.PUBLIC_CONTACT_EMAIL?.trim() || "pdfantimailtary@gmail.com",
   facebookGroup: "https://web.facebook.com/groups/115394412003293",
+  telegramTraining: "https://t.me/AIkzautomation_bot?start=public",
 };
 
 export function publicOrigin(request?: Request) {
@@ -41,6 +42,7 @@ export function siteLinks(origin: string) {
     gallery: `${origin}/gallery`,
     getInvolved: `${origin}/get-involved`,
     facebookGroup: siteIdentity.facebookGroup,
+    telegramTraining: siteIdentity.telegramTraining,
     contactEmail: siteIdentity.contactEmail,
   };
 }

@@ -1,6 +1,7 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
+import { defaultHomePage, type TelegramTrainingSettings } from "../lib/home";
 import { siteIdentity } from "../lib/site-context";
 import { usePublicLanguage } from "./usePublicLanguage";
 
@@ -8,9 +9,19 @@ export function CommunityContactForm() {
   const [notice, setNotice] = useState("");
   const [sending, setSending] = useState(false);
   const [kind, setKind] = useState("learning-referral");
+  const [training, setTraining] = useState<TelegramTrainingSettings>(defaultHomePage.telegramTraining);
   const { language } = usePublicLanguage();
   const contactEmail = siteIdentity.contactEmail;
   const my = language === "my";
+
+  useEffect(() => {
+    fetch("/api/home", { cache: "no-store", credentials: "same-origin" })
+      .then((response) => (response.ok ? response.json() : Promise.reject()))
+      .then((payload) => {
+        if (payload.home?.telegramTraining) setTraining(payload.home.telegramTraining);
+      })
+      .catch(() => undefined);
+  }, []);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -88,6 +99,21 @@ export function CommunityContactForm() {
             <a href="/giving">{my ? "လှူဒါန်းမှု ပွင့်လင်းမှု ကြည့်ရန် →" : "See giving transparency →"}</a>
             <small>{my ? "ခွင့်ပြုထားသော ဝန်ထမ်းများက ထိန်းချုပ်သော ကိန်းဂဏန်းများ" : "Figures controlled by authorised staff"}</small>
           </article>
+          {training.visible && training.url ? (
+          <article className="telegram-training-card">
+            <span>03 / {my ? "သင်တန်း" : "TRAINING"}</span>
+            <h3>{my ? "တယ်လီဂရမ်တွင် သင်ယူပါ။" : training.title}</h3>
+            <p>
+              {my
+                ? "PDF သင်တန်း ဘော့ကို ဖွင့်ပြီး Python နှင့် IT သင်ခန်းစာများကို တယ်လီဂရမ်တွင် ဆက်လက် လေ့လာပါ။ ဤနေရာတွင် လှူဒါန်းမှု မကောက်ပါ။"
+                : training.description}
+            </p>
+            <a href={training.url} target="_blank" rel="noreferrer">
+              {my ? "တယ်လီဂရမ် သင်တန်း ဖွင့်ရန် ↗" : `${training.cta} ↗`}
+            </a>
+            <small>{my ? "n8n သင်တန်း လုပ်ငန်းစဉ်" : "n8n Telegram course workflow"}</small>
+          </article>
+          ) : null}
         </div>
       </section>
 

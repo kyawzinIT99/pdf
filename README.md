@@ -33,6 +33,7 @@ Seven **PDF** workflows live on the existing Hostinger n8n VPS. BCC workflows we
 | PDF Enquiry Follow-up Reminder | schedule (calls `PDF_SITE_ORIGIN/api/n8n/stats`) |
 | PDF Monthly Summary Report | schedule |
 | PDF Subscriber Re-engagement Nudge | schedule |
+| Python + CCNP Telegram Course Bot | Telegram trigger (`https://t.me/AIkzautomation_bot?start=public`) |
 
 Website env names stay the same (`N8N_INQUIRY_ALERT_WEBHOOK`, and so on) but must point at the **pdf-** paths, not `bcc-`.
 

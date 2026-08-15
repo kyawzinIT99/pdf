@@ -116,7 +116,7 @@ export function PublicSite() {
       <section className="pdf-ledger" aria-label="Site facts">
         <div><b>04+</b><span>{pageCopy.years}</span></div>
         <div><b>08</b><span>{pageCopy.pages}</span></div>
-        <div><b>07</b><span>{pageCopy.workflows}</span></div>
+        <div><b>08</b><span>{pageCopy.workflows}</span></div>
         <div><b>03</b><span>{pageCopy.languages}</span></div>
       </section>
 
@@ -213,9 +213,21 @@ export function PublicSite() {
           <p className="pdf-kicker">{pageCopy.takePart}</p>
           <h2>{pageCopy.takePartTitle}</h2>
         </div>
-        <Link className="pdf-cta" href="/get-involved">
-          {pageCopy.getInvolved}
-        </Link>
+        <div className="pdf-band-actions">
+          <Link className="pdf-cta" href="/get-involved">
+            {pageCopy.getInvolved}
+          </Link>
+          {home.telegramTraining.visible && home.telegramTraining.url ? (
+            <a
+              className="pdf-ghost"
+              href={home.telegramTraining.url}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {language === "my" ? pageCopy.telegramTraining : home.telegramTraining.cta}
+            </a>
+          ) : null}
+        </div>
       </section>
 
       <MailSubscribe source="home" />

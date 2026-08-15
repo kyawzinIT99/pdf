@@ -1588,7 +1588,10 @@ footer { padding: 70px clamp(20px, 4vw, 64px) 26px; background: #0a253b; color: 
   font-size: 17px;
   line-height: 1.6;
 }
-.work-updates-route > div:last-child > a:last-child {
+.work-updates-route > div:last-child a[rel="noreferrer"] {
+  display: inline-block;
+  margin-top: 12px;
+  margin-right: 18px;
   color: var(--ocean);
   font-size: 12px;
   font-weight: 900;
@@ -1871,6 +1874,8 @@ footer { padding: 70px clamp(20px, 4vw, 64px) 26px; background: #0a253b; color: 
 }
 .learning-pathway-card { background: var(--sky); color: var(--ink); }
 .donation-pathway-card { background: var(--eucalyptus); color: var(--white); }
+.telegram-training-card { background: #0a2540; color: var(--white); }
+.telegram-training-card a { color: #f4c430; }
 
 .community-contact {
   margin: 0 clamp(20px, 6vw, 90px) 80px;

@@ -5,6 +5,14 @@ export type HomePathway = {
   visible: boolean;
 };
 
+export type TelegramTrainingSettings = {
+  title: string;
+  description: string;
+  cta: string;
+  url: string;
+  visible: boolean;
+};
+
 export type HomePageSettings = {
   announcement: string;
   eyebrow: string;
@@ -15,7 +23,42 @@ export type HomePageSettings = {
   helpTitle: string;
   helpIntro: string;
   pathways: [HomePathway, HomePathway, HomePathway, HomePathway];
+  telegramTraining: TelegramTrainingSettings;
 };
+
+export const defaultTelegramTraining: TelegramTrainingSettings = {
+  title: "Learn in Telegram.",
+  description:
+    "Open the PDF training bot for Python and IT lessons. The course continues in Telegram. Giving is not taken on this page.",
+  cta: "Open Telegram training",
+  url: "https://t.me/AIkzautomation_bot?start=public",
+  visible: true,
+};
+
+export function isSafeTelegramHref(value: string) {
+  try {
+    const url = new URL(value);
+    if (url.protocol !== "https:") return false;
+    const host = url.hostname.toLowerCase();
+    return host === "t.me" || host === "www.t.me" || host === "telegram.me" || host === "www.telegram.me";
+  } catch {
+    return false;
+  }
+}
+
+export function normalizeTelegramTraining(value: unknown): TelegramTrainingSettings {
+  const raw = value && typeof value === "object" ? (value as Partial<TelegramTrainingSettings>) : {};
+  const url = String(raw.url || "").trim().slice(0, 500);
+  return {
+    title: String(raw.title || defaultTelegramTraining.title).trim().slice(0, 100) || defaultTelegramTraining.title,
+    description:
+      String(raw.description || defaultTelegramTraining.description).trim().slice(0, 360) ||
+      defaultTelegramTraining.description,
+    cta: String(raw.cta || defaultTelegramTraining.cta).trim().slice(0, 80) || defaultTelegramTraining.cta,
+    url: isSafeTelegramHref(url) ? url : defaultTelegramTraining.url,
+    visible: raw.visible !== false,
+  };
+}
 
 export const defaultHomePage: HomePageSettings = {
   announcement: "Civilian humanitarian action for people affected by the coup",
@@ -53,4 +96,5 @@ export const defaultHomePage: HomePageSettings = {
       visible: true,
     },
   ],
+  telegramTraining: { ...defaultTelegramTraining },
 };

@@ -398,6 +398,12 @@ html[lang="my"] .pdf-rail a {
   background: var(--pdf-yellow);
   border: 1px solid var(--pdf-ink);
 }
+.pdf-band-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
 
 .pdf-shell .mail-subscribe,
 .pdf-inner .mail-subscribe,

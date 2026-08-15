@@ -103,6 +103,7 @@ const schema = [
     hero_image_url VARCHAR(1000) NOT NULL DEFAULT '/pdf-hero-civilian.png',
     hero_image_alt VARCHAR(500) NOT NULL DEFAULT 'Civilians packing relief supplies together in a community hall.',
     help_title VARCHAR(255) NOT NULL, help_intro TEXT NOT NULL, pathways_json LONGTEXT NOT NULL,
+    telegram_json LONGTEXT NOT NULL,
     updated_by BIGINT UNSIGNED NOT NULL, updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
   `CREATE TABLE IF NOT EXISTS security_rate_limits (
@@ -137,6 +138,7 @@ const schemaMigrations = [
   "ALTER TABLE community_events ADD COLUMN live_platform VARCHAR(20) NOT NULL DEFAULT 'none'",
   "ALTER TABLE community_events ADD COLUMN live_url VARCHAR(500) NOT NULL DEFAULT ''",
   "ALTER TABLE community_events ADD COLUMN live_on TINYINT(1) NOT NULL DEFAULT 0",
+  "ALTER TABLE site_home_settings ADD COLUMN telegram_json LONGTEXT NULL",
 ];
 
 async function ensureSchema(pool: Pool) {

@@ -21,6 +21,7 @@ import {
   type PageMedia,
 } from "../lib/page-media";
 import { sectionDefinitions, type SectionKey } from "../lib/sections";
+import { defaultHomePage, type TelegramTrainingSettings } from "../lib/home";
 import { aboutUi, localizeSection } from "../lib/i18n";
 import { LogoMark } from "./LogoMark";
 import { PublicHeader } from "./PublicHeader";
@@ -47,6 +48,9 @@ export function SectionPage({ sectionKey }: { sectionKey: SectionKey }) {
   );
   const [giving, setGiving] = useState<GivingContent>(defaultGivingContent);
   const [certificates, setCertificates] = useState<CertificatesContent>(defaultCertificatesContent);
+  const [telegramTraining, setTelegramTraining] = useState<TelegramTrainingSettings>(
+    defaultHomePage.telegramTraining,
+  );
   const { language, onLanguageChange } = usePublicLanguage();
   const ui = language === "my" ? aboutUi.my : aboutUi.en;
   const pageCopy = localizeSection(language, sectionKey, rawPageCopy);
@@ -115,6 +119,21 @@ export function SectionPage({ sectionKey }: { sectionKey: SectionKey }) {
     window.addEventListener("focus", loadPage);
     return () => window.removeEventListener("focus", loadPage);
   }, [section, sectionKey]);
+
+  useEffect(() => {
+    if (sectionKey !== "our-work" && sectionKey !== "get-involved") return;
+    function loadTraining() {
+      fetch("/api/home", { cache: "no-store", credentials: "same-origin" })
+        .then((response) => (response.ok ? response.json() : Promise.reject()))
+        .then((payload) => {
+          if (payload.home?.telegramTraining) setTelegramTraining(payload.home.telegramTraining);
+        })
+        .catch(() => undefined);
+    }
+    loadTraining();
+    window.addEventListener("focus", loadTraining);
+    return () => window.removeEventListener("focus", loadTraining);
+  }, [sectionKey]);
 
   return (
     <main className={`pdf-shell pdf-inner section-page section-${sectionKey}${language === "my" ? " is-my" : ""}`}>
@@ -321,6 +340,12 @@ export function SectionPage({ sectionKey }: { sectionKey: SectionKey }) {
             <a href="https://web.facebook.com/groups/115394412003293" target="_blank" rel="noreferrer">
               {ui.facebook} <span aria-hidden="true">↗</span>
             </a>
+            {telegramTraining.visible && telegramTraining.url ? (
+              <a href={telegramTraining.url} target="_blank" rel="noreferrer">
+                {language === "my" ? ui.telegramTraining : telegramTraining.cta}{" "}
+                <span aria-hidden="true">↗</span>
+              </a>
+            ) : null}
           </div>
         </section>
       )}

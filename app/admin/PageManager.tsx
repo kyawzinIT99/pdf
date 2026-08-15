@@ -107,6 +107,18 @@ export function PageManager({ currentUser }: { currentUser: StaffUser }) {
         if (error instanceof Error && error.name === "AbortError") return;
         setNotice("Using the reviewed repository copy for this page.");
       });
+    if (key === "get-involved") {
+      fetch("/api/home", {
+        cache: "no-store",
+        credentials: "same-origin",
+        signal: controller.signal,
+      })
+        .then((response) => (response.ok ? response.json() : Promise.reject()))
+        .then((payload) => {
+          if (payload.home) setHome(payload.home);
+        })
+        .catch(() => undefined);
+    }
     return () => controller.abort();
   }, [key]);
 
@@ -134,6 +146,17 @@ export function PageManager({ currentUser }: { currentUser: StaffUser }) {
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || "Unable to save page");
       if (key === "home" && payload.home) setHome(payload.home);
+      if (key === "get-involved") {
+        const homeResponse = await fetch("/api/home", {
+          method: "PATCH",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(home),
+        });
+        const homePayload = await homeResponse.json();
+        if (!homeResponse.ok) throw new Error(homePayload.error || "Unable to save Telegram training");
+        if (homePayload.home) setHome(homePayload.home);
+      }
       if (key !== "home" && payload.page) {
         const fallback = defaults(key);
         setFields({
@@ -147,8 +170,10 @@ export function PageManager({ currentUser }: { currentUser: StaffUser }) {
       }
       setNotice(
         key === "home"
-          ? "Home page public copy and pathways updated."
-          : `${sectionDefinitions[key].label} public copy and photos updated.`,
+          ? "Home page public copy, pathways and Telegram training updated."
+          : key === "get-involved"
+            ? "Get involved copy and Telegram training updated."
+            : `${sectionDefinitions[key].label} public copy and photos updated.`,
       );
     } catch (error) {
       setNotice(error instanceof Error ? error.message : "Unable to save page");
@@ -308,6 +333,90 @@ export function PageManager({ currentUser }: { currentUser: StaffUser }) {
     }
   }
 
+  const telegramTrainingEditor = (
+    <div className="home-pathway-editor wide" id="telegram-training-editor">
+      <div className="home-pathway-editor-heading">
+        <strong>Telegram training</strong>
+        <small>Shown on Home, Get involved and Our work after you click Update public page</small>
+      </div>
+      <fieldset>
+        <legend>Public Telegram course</legend>
+        <label>
+          Title
+          <input
+            maxLength={100}
+            required
+            value={home.telegramTraining.title}
+            onChange={(event) =>
+              setHome({
+                ...home,
+                telegramTraining: { ...home.telegramTraining, title: event.target.value },
+              })
+            }
+          />
+        </label>
+        <label className="wide">
+          Description
+          <textarea
+            rows={3}
+            maxLength={360}
+            required
+            value={home.telegramTraining.description}
+            onChange={(event) =>
+              setHome({
+                ...home,
+                telegramTraining: { ...home.telegramTraining, description: event.target.value },
+              })
+            }
+          />
+        </label>
+        <label>
+          Button label
+          <input
+            maxLength={80}
+            required
+            value={home.telegramTraining.cta}
+            onChange={(event) =>
+              setHome({
+                ...home,
+                telegramTraining: { ...home.telegramTraining, cta: event.target.value },
+              })
+            }
+          />
+        </label>
+        <label className="wide">
+          Telegram link
+          <input
+            maxLength={500}
+            required
+            value={home.telegramTraining.url}
+            onChange={(event) =>
+              setHome({
+                ...home,
+                telegramTraining: { ...home.telegramTraining, url: event.target.value },
+              })
+            }
+            placeholder="https://t.me/AIkzautomation_bot?start=public"
+          />
+          <small className="field-guidance">Paste the public t.me training bot link. Only https://t.me links are saved.</small>
+        </label>
+        <label className="pathway-visibility">
+          <input
+            type="checkbox"
+            checked={home.telegramTraining.visible}
+            onChange={(event) =>
+              setHome({
+                ...home,
+                telegramTraining: { ...home.telegramTraining, visible: event.target.checked },
+              })
+            }
+          />
+          Show Telegram training on the public site
+        </label>
+      </fieldset>
+    </div>
+  );
+
   return (
     <section className="operations-panel" id="pages">
       <div className="panel-heading">
@@ -451,6 +560,7 @@ export function PageManager({ currentUser }: { currentUser: StaffUser }) {
                   </fieldset>
                 ))}
               </div>
+              {telegramTrainingEditor}
             </>
           ) : (
             <>
@@ -461,6 +571,7 @@ export function PageManager({ currentUser }: { currentUser: StaffUser }) {
                   <small>Changes saved here update the public About page.</small>
                 </div>
               )}
+              {key === "get-involved" && telegramTrainingEditor}
               {supportsPageMedia(key) && fields.media && (
                 <div className="home-pathway-editor wide" id="page-photos">
                   <div className="home-pathway-editor-heading">

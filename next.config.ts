@@ -46,7 +46,7 @@ const nextConfig: NextConfig = {
               "frame-ancestors 'none'",
               "form-action 'self'",
               "object-src 'none'",
-              "img-src 'self' data: blob:",
+              "img-src 'self' data: blob: https://www.facebook.com https://www.tiktok.com",
               "font-src 'self' data: https://fonts.gstatic.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               isDev
@@ -55,6 +55,7 @@ const nextConfig: NextConfig = {
               isDev
                 ? "connect-src 'self' ws: wss:"
                 : "connect-src 'self'",
+              "frame-src https://www.facebook.com https://web.facebook.com https://www.tiktok.com",
             ].join("; "),
           },
         ],

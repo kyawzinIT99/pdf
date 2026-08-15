@@ -6,6 +6,8 @@ import { PublicHeader } from "./PublicHeader";
 import { MailSubscribe } from "./MailSubscribe";
 import { usePublicLanguage } from "./usePublicLanguage";
 import { eventsUi } from "../lib/i18n";
+import { LiveStreamPlayer } from "./LiveStreamPlayer";
+import type { LivePlatform } from "../lib/live-stream";
 
 type CommunityEvent = {
   id: number;
@@ -16,6 +18,9 @@ type CommunityEvent = {
   category: "mass" | "cultural" | "service" | "youth" | "learning";
   description: string;
   recurring?: boolean;
+  livePlatform?: LivePlatform;
+  liveUrl?: string;
+  liveOn?: boolean;
 };
 
 const categoryColors: Record<CommunityEvent["category"], string> = {
@@ -97,6 +102,9 @@ export function EventsPage() {
       : displayEvents.filter((e) => e.category === filter);
 
   const allCategories = Object.entries(ui.categories);
+  const liveNow = communityEvents.filter(
+    (event) => event.liveOn && event.liveUrl && (event.livePlatform === "facebook" || event.livePlatform === "tiktok"),
+  );
 
   return (
     <main className={`pdf-shell pdf-inner${language === "my" ? " is-my" : ""}`}>
@@ -116,6 +124,26 @@ export function EventsPage() {
           </p>
         </div>
       </section>
+
+      {liveNow.length > 0 && (
+        <section className="pdf-live-stage" aria-label={ui.liveNow}>
+          {liveNow.map((event) => (
+            <article key={`live-${event.id}`}>
+              <p className="pdf-kicker">{ui.liveNow} · {event.livePlatform === "tiktok" ? "TikTok" : "Facebook"}</p>
+              <h2>{event.title}</h2>
+              <p>{ui.liveNote}</p>
+              <LiveStreamPlayer
+                platform={event.livePlatform || "none"}
+                liveUrl={event.liveUrl || ""}
+                title={event.title}
+                watchLabel={
+                  event.livePlatform === "tiktok" ? ui.watchTiktok : ui.watchFacebook
+                }
+              />
+            </article>
+          ))}
+        </section>
+      )}
 
       {/* ── Toggle + Filters ─────────────────────────────────── */}
       <div className="v2-events-controls">
@@ -211,9 +239,22 @@ export function EventsPage() {
                       {event.recurring && (
                         <span className="v2-event-recurring">↻ {ui.recurring}</span>
                       )}
+                      {event.liveOn && event.liveUrl ? (
+                        <span className="v2-event-recurring">{ui.liveNow}</span>
+                      ) : null}
                     </div>
                     <h3>{event.title}</h3>
                     <p>{event.description}</p>
+                    {event.liveOn && event.liveUrl ? (
+                      <LiveStreamPlayer
+                        platform={event.livePlatform || "none"}
+                        liveUrl={event.liveUrl}
+                        title={event.title}
+                        watchLabel={
+                          event.livePlatform === "tiktok" ? ui.watchTiktok : ui.watchFacebook
+                        }
+                      />
+                    ) : null}
                     <div className="v2-event-details">
                       <span className="v2-event-time">
                         <svg

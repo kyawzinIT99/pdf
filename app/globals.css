@@ -2868,6 +2868,7 @@ footer { padding: 70px clamp(20px, 4vw, 64px) 26px; background: #0a253b; color: 
 .events-form label { display: grid; gap: 5px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
 .events-form input[type="text"],
 .events-form input[type="date"],
+.events-form input[type="url"],
 .events-form select,
 .events-form textarea {
   width: 100%; padding: 10px 12px; border-radius: 8px;
@@ -2876,6 +2877,29 @@ footer { padding: 70px clamp(20px, 4vw, 64px) 26px; background: #0a253b; color: 
 }
 .events-form input:focus, .events-form select:focus, .events-form textarea:focus {
   outline: none; border-color: var(--ink);
+}
+.events-live-box {
+  margin: 0 0 18px;
+  padding: 16px;
+  border: 2px solid var(--ink);
+  background: #fff8e6;
+  display: grid;
+  gap: 12px;
+}
+.events-live-box-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink);
+}
+.events-live-paste small {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--muted);
 }
 .events-checkbox { flex-direction: row !important; align-items: center; gap: 8px !important; cursor: pointer; font-size: 12px !important; text-transform: none !important; }
 .events-checkbox input[type="checkbox"] { width: 16px; height: 16px; }

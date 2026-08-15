@@ -1,7 +1,9 @@
 import { applicationRuntime } from "../../lib/hostinger-runtime";
 import { authenticateRequest } from "../../lib/auth";
 import { notifyEventMailAutomation } from "../../lib/n8n";
+import { detectLivePlatform, sanitizeLiveUrl, type LivePlatform } from "../../lib/live-stream";
 import { mutationRejected, noStoreHeaders, recordAudit } from "../../lib/security";
+import { publicOrigin, siteIdentity } from "../../lib/site-context";
 
 type RuntimeEnv = {
   DB: D1Database;
@@ -24,11 +26,30 @@ async function ensureSchema(db: D1Database) {
     status TEXT NOT NULL DEFAULT 'published',
     created_by INTEGER,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    live_platform TEXT NOT NULL DEFAULT 'none',
+    live_url TEXT NOT NULL DEFAULT '',
+    live_on INTEGER NOT NULL DEFAULT 0
   )`).run();
+  for (const statement of [
+    "ALTER TABLE community_events ADD COLUMN live_platform TEXT NOT NULL DEFAULT 'none'",
+    "ALTER TABLE community_events ADD COLUMN live_url TEXT NOT NULL DEFAULT ''",
+    "ALTER TABLE community_events ADD COLUMN live_on INTEGER NOT NULL DEFAULT 0",
+  ]) {
+    try {
+      await db.prepare(statement).run();
+    } catch {
+      /* column may already exist */
+    }
+  }
 }
 
 function normalize(row: Record<string, unknown>) {
+  const liveUrl = sanitizeLiveUrl(String(row.live_url || ""));
+  const detected = detectLivePlatform(liveUrl);
+  const stored = String(row.live_platform || "none");
+  const livePlatform: LivePlatform =
+    stored === "facebook" || stored === "tiktok" ? stored : detected;
   return {
     id: row.id,
     title: row.title,
@@ -40,6 +61,9 @@ function normalize(row: Record<string, unknown>) {
     recurring: Boolean(row.recurring),
     status: row.status || "published",
     createdAt: row.created_at,
+    livePlatform: liveUrl ? livePlatform : "none",
+    liveUrl,
+    liveOn: Boolean(row.live_on) && Boolean(liveUrl),
   };
 }
 
@@ -74,16 +98,19 @@ function isUpcomingDate(dateValue: string) {
 }
 
 async function maybeNotifyEventMail(
+  request: Request,
   db: D1Database,
   event: ReturnType<typeof normalize>,
-  previousStatus?: string,
+  previous?: { status?: string; liveOn?: boolean; liveUrl?: string },
 ) {
   if (event.status !== "published") return;
-  if (!isUpcomingDate(String(event.date))) return;
-  // Notify on create-as-published, or when moving draft → published
-  if (previousStatus && previousStatus === "published") return;
+  const firstPublish = !previous || previous.status !== "published";
+  const wentLive = Boolean(event.liveOn && (!previous?.liveOn || previous.liveUrl !== event.liveUrl));
+  if (!firstPublish && !wentLive) return;
+  if (!wentLive && !isUpcomingDate(String(event.date))) return;
 
   const subscribers = await loadActiveSubscriberEmails(db);
+  const origin = publicOrigin(request);
   await notifyEventMailAutomation({
     id: event.id,
     title: event.title,
@@ -93,6 +120,12 @@ async function maybeNotifyEventMail(
     category: event.category,
     description: event.description,
     recurring: event.recurring,
+    liveOn: event.liveOn,
+    livePlatform: event.livePlatform,
+    liveUrl: event.liveUrl,
+    watchOnWebsite: `${origin}/events`,
+    organisation: siteIdentity.name,
+    contactEmail: siteIdentity.contactEmail,
     subscriberCount: subscribers.length,
     subscribers,
   });
@@ -156,6 +189,9 @@ export async function POST(request: Request) {
       description?: string;
       recurring?: boolean;
       status?: string;
+      livePlatform?: string;
+      liveUrl?: string;
+      liveOn?: boolean;
     };
 
     const title = payload.title?.trim() || "";
@@ -170,6 +206,12 @@ export async function POST(request: Request) {
     const category = allowedCategories.has(payload.category || "") ? payload.category! : "cultural";
     const allowedStatuses = new Set(["draft", "published"]);
     const status = allowedStatuses.has(payload.status || "") ? payload.status! : "published";
+    const liveUrl = sanitizeLiveUrl(payload.liveUrl || "");
+    const livePlatform =
+      liveUrl && (payload.livePlatform === "tiktok" || payload.livePlatform === "facebook")
+        ? payload.livePlatform
+        : detectLivePlatform(liveUrl);
+    const liveOn = Boolean(payload.liveOn) && Boolean(liveUrl);
 
     const db = runtime().DB;
     if (!db) {
@@ -179,8 +221,9 @@ export async function POST(request: Request) {
 
     const row = await db
       .prepare(`INSERT INTO community_events
-        (title, event_date, event_time, location, category, description, recurring, status, created_by)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (title, event_date, event_time, location, category, description, recurring, status, created_by,
+         live_platform, live_url, live_on)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         RETURNING *`)
       .bind(
         title,
@@ -192,12 +235,15 @@ export async function POST(request: Request) {
         payload.recurring ? 1 : 0,
         status,
         user.id,
+        livePlatform,
+        liveUrl,
+        liveOn ? 1 : 0,
       )
       .first();
 
     const event = normalize(row as Record<string, unknown>);
     await recordAudit(db, user.id, "event.create", "community_event", Number(event.id));
-    await maybeNotifyEventMail(db, event);
+    await maybeNotifyEventMail(request, db, event);
     return Response.json(
       { event },
       { status: 201, headers: noStoreHeaders() }
@@ -226,6 +272,9 @@ export async function PATCH(request: Request) {
       description?: string;
       recurring?: boolean;
       status?: string;
+      livePlatform?: string;
+      liveUrl?: string;
+      liveOn?: boolean;
     };
 
     const id = Number(payload.id);
@@ -244,6 +293,12 @@ export async function PATCH(request: Request) {
     const category = allowedCategories.has(payload.category || "") ? payload.category! : "cultural";
     const allowedStatuses = new Set(["draft", "published"]);
     const status = allowedStatuses.has(payload.status || "") ? payload.status! : "published";
+    const liveUrl = sanitizeLiveUrl(payload.liveUrl || "");
+    const livePlatform =
+      liveUrl && (payload.livePlatform === "tiktok" || payload.livePlatform === "facebook")
+        ? payload.livePlatform
+        : detectLivePlatform(liveUrl);
+    const liveOn = Boolean(payload.liveOn) && Boolean(liveUrl);
 
     const db = runtime().DB;
     if (!db) {
@@ -251,7 +306,7 @@ export async function PATCH(request: Request) {
     }
     await ensureSchema(db);
     const existing = await db
-      .prepare("SELECT status FROM community_events WHERE id = ?")
+      .prepare("SELECT status, live_on, live_url FROM community_events WHERE id = ?")
       .bind(id)
       .first<Record<string, unknown>>();
     if (!existing) {
@@ -262,6 +317,7 @@ export async function PATCH(request: Request) {
       .prepare(`UPDATE community_events SET
         title = ?, event_date = ?, event_time = ?, location = ?,
         category = ?, description = ?, recurring = ?, status = ?,
+        live_platform = ?, live_url = ?, live_on = ?,
         updated_at = CURRENT_TIMESTAMP
         WHERE id = ? RETURNING *`)
       .bind(
@@ -273,6 +329,9 @@ export async function PATCH(request: Request) {
         (payload.description || "").trim().slice(0, 2000),
         payload.recurring ? 1 : 0,
         status,
+        livePlatform,
+        liveUrl,
+        liveOn ? 1 : 0,
         id,
       )
       .first();
@@ -283,7 +342,11 @@ export async function PATCH(request: Request) {
 
     const event = normalize(row as Record<string, unknown>);
     await recordAudit(db, user.id, "event.update", "community_event", id);
-    await maybeNotifyEventMail(db, event, String(existing.status || ""));
+    await maybeNotifyEventMail(request, db, event, {
+      status: String(existing.status || ""),
+      liveOn: Boolean(existing.live_on),
+      liveUrl: String(existing.live_url || ""),
+    });
     return Response.json(
       { event },
       { headers: noStoreHeaders() }

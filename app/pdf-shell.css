@@ -920,3 +920,44 @@ html[data-lang="my"] .pdf-inner.section-stories .section-published-copy h3,
   font-size: 18px !important;
   line-height: 1.5 !important;
 }
+
+.pdf-live-stage {
+  margin: 0 var(--pdf-pad) 28px;
+  padding: 24px;
+  border: 1px solid var(--pdf-ink);
+  background: #fff;
+}
+.pdf-live-stage h2 {
+  margin: 8px 0 10px;
+  font-family: "IBM Plex Serif", "Noto Sans Myanmar", Georgia, serif;
+  font-size: clamp(22px, 2.6vw, 32px);
+  line-height: 1.35;
+}
+.pdf-live-player {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+.pdf-live-player iframe {
+  width: 100%;
+  min-height: 360px;
+  border: 1px solid var(--pdf-ink);
+  background: #111;
+}
+.pdf-live-fallback {
+  min-height: 180px;
+  display: grid;
+  place-items: center;
+  border: 1px dashed var(--pdf-ink);
+  background: var(--pdf-yellow);
+  padding: 20px;
+  text-align: center;
+}
+.pdf-live-watch {
+  width: fit-content;
+  padding: 8px 12px;
+  border: 1px solid var(--pdf-ink);
+  background: var(--pdf-red);
+  color: #fff !important;
+  font-size: 13px;
+}

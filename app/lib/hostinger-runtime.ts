@@ -85,7 +85,10 @@ const schema = [
     category VARCHAR(80) NOT NULL DEFAULT 'cultural', description TEXT NOT NULL,
     recurring TINYINT(1) NOT NULL DEFAULT 0, status VARCHAR(40) NOT NULL DEFAULT 'published',
     created_by BIGINT UNSIGNED, created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)
+    updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    live_platform VARCHAR(20) NOT NULL DEFAULT 'none',
+    live_url VARCHAR(500) NOT NULL DEFAULT '',
+    live_on TINYINT(1) NOT NULL DEFAULT 0
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
   `CREATE TABLE IF NOT EXISTS site_pages (
     \`key\` VARCHAR(80) PRIMARY KEY, eyebrow VARCHAR(160) NOT NULL, title VARCHAR(255) NOT NULL,
@@ -131,6 +134,9 @@ function databaseConfig() {
 const schemaMigrations = [
   "ALTER TABLE site_pages ADD COLUMN media_json LONGTEXT NULL",
   "ALTER TABLE site_pages ADD COLUMN content_json LONGTEXT NULL",
+  "ALTER TABLE community_events ADD COLUMN live_platform VARCHAR(20) NOT NULL DEFAULT 'none'",
+  "ALTER TABLE community_events ADD COLUMN live_url VARCHAR(500) NOT NULL DEFAULT ''",
+  "ALTER TABLE community_events ADD COLUMN live_on TINYINT(1) NOT NULL DEFAULT 0",
 ];
 
 async function ensureSchema(pool: Pool) {

@@ -193,11 +193,12 @@ export function applySecurityHeaders(request: Request, response: Response) {
       "frame-ancestors 'none'",
       "form-action 'self'",
       "object-src 'none'",
-      "img-src 'self' data: blob:",
+      "img-src 'self' data: blob: https://www.facebook.com https://www.tiktok.com",
       "font-src 'self' data: https://fonts.gstatic.com",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "script-src 'self' 'unsafe-inline'",
       "connect-src 'self'",
+      "frame-src https://www.facebook.com https://web.facebook.com https://www.tiktok.com",
     ].join("; "),
   );
   if (production) {

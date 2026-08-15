@@ -634,6 +634,10 @@ export const eventsUi = {
     ctaTitle: "Want to organise an event?",
     ctaBody: "Community leaders can submit events through the admin panel. Reach out to get started.",
     contact: "Contact Us",
+    liveNow: "Live now",
+    watchFacebook: "Watch on Facebook (same stream)",
+    watchTiktok: "Watch on TikTok (same stream)",
+    liveNote: "The stream plays here and on Facebook or TikTok at the same time. Giving is not taken on this page.",
     categories: {
       mass: "Gathering",
       cultural: "Culture",
@@ -655,6 +659,10 @@ export const eventsUi = {
     ctaTitle: "ပွဲ စီစဉ်လိုပါသလား။",
     ctaBody: "လူထု ခေါင်းဆောင်များသည် စီမံခန့်ခွဲမှု ဘောင်မှ ပွဲများ တင်နိုင်သည်။ စတင်ရန် ဆက်သွယ်ပါ။",
     contact: "ဆက်သွယ်ရန်",
+    liveNow: "ယခု တိုက်ရိုက်",
+    watchFacebook: "ဖေ့စ်ဘုတ်တွင် ကြည့်ရန် (တူညီသော စတရီးမ်)",
+    watchTiktok: "တစ်တော့တွင် ကြည့်ရန် (တူညီသော စတရီးမ်)",
+    liveNote: "ဤစတရီးမ်ကို ဤဆိုက်နှင့် ဖေ့စ်ဘုတ် သို့မဟုတ် တစ်တော့တွင် တစ်ပြိုင်နက် ကြည့်နိုင်သည်။ ဤစာမျက်နှာတွင် လှူဒါန်းမှု မကောက်ပါ။",
     categories: {
       mass: "စုဝေးပွဲ",
       cultural: "ယဉ်ကျေးမှု",

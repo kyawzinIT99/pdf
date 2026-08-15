@@ -12,6 +12,9 @@ type EventItem = {
   description: string;
   recurring: boolean;
   status: string;
+  livePlatform: "none" | "facebook" | "tiktok";
+  liveUrl: string;
+  liveOn: boolean;
 };
 
 const CATEGORIES = [
@@ -31,6 +34,9 @@ const emptyEvent = (): Omit<EventItem, "id"> => ({
   description: "",
   recurring: false,
   status: "published",
+  livePlatform: "none",
+  liveUrl: "",
+  liveOn: false,
 });
 
 export function EventsManager() {
@@ -71,6 +77,9 @@ export function EventsManager() {
       description: ev.description,
       recurring: ev.recurring,
       status: ev.status,
+      livePlatform: ev.livePlatform || "none",
+      liveUrl: ev.liveUrl || "",
+      liveOn: Boolean(ev.liveOn),
     });
     setMsg("");
   };
@@ -141,7 +150,11 @@ export function EventsManager() {
       <div className="events-manager-header">
         <div>
           <h2>Community Events</h2>
-          <p>Create and manage events shown on the public Events page.</p>
+          <p>
+            Create events for the public page. For a live stream: start on Facebook or TikTok,
+            copy the live link, paste it here, tick Live now, then Publish. Subscribers are emailed
+            and the same stream shows on /events.
+          </p>
         </div>
         <button
           type="button"
@@ -158,6 +171,68 @@ export function EventsManager() {
       {showForm && (
         <form className="events-form" onSubmit={handleSubmit}>
           <h3>{creating ? "Create Event" : `Edit: ${editing!.title}`}</h3>
+
+          <div className="events-live-box">
+            <p className="events-live-box-title">Live stream (Facebook or TikTok)</p>
+            <label>
+              1. Select where you went live
+              <select
+                value={form.livePlatform}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    livePlatform: e.target.value as EventItem["livePlatform"],
+                    liveOn: e.target.value !== "none" ? true : form.liveOn,
+                  })
+                }
+              >
+                <option value="none">No live stream</option>
+                <option value="facebook">Facebook Live</option>
+                <option value="tiktok">TikTok Live</option>
+              </select>
+            </label>
+            {form.livePlatform !== "none" && (
+              <label className="events-live-paste">
+                {form.livePlatform === "facebook"
+                  ? "2. Paste Facebook live link here"
+                  : "2. Paste TikTok live link here"}
+                <input
+                  type="text"
+                  inputMode="url"
+                  value={form.liveUrl}
+                  maxLength={500}
+                  required
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      liveUrl: e.target.value,
+                      liveOn: true,
+                    })
+                  }
+                  placeholder={
+                    form.livePlatform === "facebook"
+                      ? "https://www.facebook.com/yourpage/videos/123…  ← paste Facebook copy link"
+                      : "https://www.tiktok.com/@account/live  ← paste TikTok copy link"
+                  }
+                />
+                <small>
+                  {form.livePlatform === "facebook"
+                    ? "On Facebook: open the live video → Share → Copy link → paste in this box."
+                    : "On TikTok: open the live → Share → Copy link → paste in this box."}
+                </small>
+              </label>
+            )}
+            {form.livePlatform !== "none" && (
+              <label className="events-checkbox">
+                <input
+                  type="checkbox"
+                  checked={form.liveOn}
+                  onChange={(e) => setForm({ ...form, liveOn: e.target.checked })}
+                />
+                Live now — show on Events page and email subscribers
+              </label>
+            )}
+          </div>
 
           <div className="events-form-grid">
             <label>
@@ -286,6 +361,7 @@ export function EventsManager() {
                   <td>
                     <strong>{ev.title}</strong>
                     {ev.recurring && <span className="events-recurring-badge">↻</span>}
+                    {ev.liveOn && <span className="events-recurring-badge">LIVE</span>}
                     {ev.time && <small>{ev.time}</small>}
                   </td>
                   <td>{ev.location}</td>
